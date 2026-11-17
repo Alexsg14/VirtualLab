@@ -463,14 +463,18 @@ export function crearGrupoRecipiente3D(rec, posX, esActivo, nombreEtiqueta = rec
       };
       // A thick, closed base sits above the bench. The former flat disc at
       // y=0 was coplanar with the table and exposed a radial z-fighting pattern.
+      const levels=[.14,2.18,2.22,2.26,2.30,2.34,2.37,altura];
       const profile=[
-        [0,.025],[.72,.025],[.78,.035],[.805,.07],[.817,.13],
-        [radio,altura],[radio-.025,altura],[.792,.14],[.78,.105],[.72,.095],[0,.095]
-      ].map(([r,y])=>new THREE.Vector2(r,y));
+        new THREE.Vector2(0,.025),new THREE.Vector2(.76,.025),
+        new THREE.Vector2(.815,.04),new THREE.Vector2(.842,.08),
+        ...levels.map(y=>new THREE.Vector2(radio,y)),
+        ...levels.slice().reverse().map(y=>new THREE.Vector2(radio-.025,y)),
+        new THREE.Vector2(.815,.105),new THREE.Vector2(.78,.095),new THREE.Vector2(0,.095)
+      ];
       const wall=new THREE.LatheGeometry(profile,96);
       const positions=wall.attributes.position;
       for(let i=0;i<positions.count;i++){
-        const y=positions.getY(i),blend=Math.pow(Math.max(0,y/altura),10);
+        const y=positions.getY(i),t=Math.max(0,Math.min(1,(y-2.18)/(altura-2.18))),blend=t*t*(3-2*t);
         const p=deformLip(positions.getX(i),positions.getZ(i),blend);
         positions.setXYZ(i,p.x,y+p.raise,p.z);
       }
@@ -486,13 +490,8 @@ export function crearGrupoRecipiente3D(rec, posX, esActivo, nombreEtiqueta = rec
       const rim=new THREE.Mesh(new THREE.TubeGeometry(rimCurve,160,0.025,8,true),glassMat);
       rim.renderOrder=2;group.add(rim);
 
-      const bottom=.105,radiusAt=y=>.78+.04*(y-bottom)/(altura-bottom);
-      const volumeAt=y=>{const r=radiusAt(y);return Math.PI*(y-bottom)*(.78*.78+.78*r+r*r)/3;};
-      const heightForFraction=fraction=>{
-        const target=volumeAt(hNominal)*fraction;let lo=bottom,hi=altura-.03;
-        for(let i=0;i<32;i++){const mid=(lo+hi)/2;if(volumeAt(mid)<target)lo=mid;else hi=mid;}
-        return (lo+hi)/2;
-      };
+      const bottom=.105,radiusAt=()=>radio-.037;
+      const heightForFraction=fraction=>bottom+(hNominal-bottom)*fraction;
       // Printed graduations use the same volume-to-height map as the liquid.
       const print=document.createElement('canvas');print.width=320;print.height=1024;
       const printBottom=.16,printTop=2.32,printHeight=printTop-printBottom;
@@ -508,7 +507,7 @@ export function crearGrupoRecipiente3D(rec, posX, esActivo, nombreEtiqueta = rec
         if(half<print.height-12){ink.beginPath();ink.moveTo(24,half);ink.lineTo(70,half);ink.stroke();}
       }
       ink.font='36px sans-serif';ink.fillText('mL',242,printY(heightForFraction(1)));
-      const outerRadius=y=>.817+(radio-.817)*(y-.13)/(altura-.13);
+      const outerRadius=()=>radio;
       const ticks=new THREE.Mesh(new THREE.CylinderGeometry(outerRadius(printTop)+.0015,outerRadius(printBottom)+.0015,printHeight,48,1,true,-.36,1.05),new THREE.MeshBasicMaterial({map:new THREE.CanvasTexture(print),transparent:true,opacity:.92,depthWrite:false,side:THREE.FrontSide}));
       ticks.position.y=(printTop+printBottom)/2;ticks.renderOrder=3;ticks.name='graduaciones-vaso';group.add(ticks);
       if(pctLleno>0){
