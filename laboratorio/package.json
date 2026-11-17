@@ -1,0 +1,28 @@
+{
+  "name": "virtual-lab",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "engines": {
+    "node": ">=22.18.0"
+  },
+  "scripts": {
+    "dev": "vite --configLoader native --host 127.0.0.1 --port 5173 --strictPort",
+    "build": "tsc --noEmit && node scripts/build.mjs",
+    "preview": "vite preview --configLoader native --host 127.0.0.1 --port 4173 --strictPort",
+    "typecheck": "tsc --noEmit",
+    "test": "node --test tests/*.test.mjs",
+    "test:e2e": "node tests/browser.mjs",
+    "test:acidbase": "node tests/acid-base.browser.mjs",
+    "test:titration": "node tests/titration.browser.mjs",
+    "test:instruments": "node tests/instruments-scene.browser.mjs"
+  },
+  "dependencies": {
+    "three": "0.128.0"
+  },
+  "devDependencies": {
+    "vite": "8.3.8",
+    "typescript": "5.9.3",
+    "@playwright/test": "1.61.1"
+  }
+}

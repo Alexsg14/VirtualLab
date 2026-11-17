@@ -1,0 +1,535 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Laboratorio Virtual de Soluciones Químicas</title>
+  
+  
+  
+  
+  
+</head>
+<body>
+
+<!-- ============================================================
+     HEADER
+============================================================ -->
+<header id="app-header">
+  <div class="header-title">⚗️ Laboratorio Virtual de Soluciones</div>
+
+  <label class="module-picker" for="modulo-laboratorio"><span>Módulo</span><select id="modulo-laboratorio" onchange="cambiarModulo(this.value)"><option value="disoluciones">Disoluciones</option><option value="acidbase">Ácido-base</option></select></label>
+  <label class="theme-switch" title="Cambiar entre día y noche"><input id="tema-laboratorio" type="checkbox" role="switch" aria-label="Modo noche"><span class="theme-track" aria-hidden="true"><span class="theme-sun"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="3.6"/><path d="M12 2v2m0 16v2M2 12h2m16 0h2M4.9 4.9l1.4 1.4m11.4 11.4 1.4 1.4M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg></span><span class="theme-moon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20.5 14.2A8.6 8.6 0 0 1 9.8 3.5a8.6 8.6 0 1 0 10.7 10.7Z"/></svg></span><span class="theme-thumb"></span></span></label>
+  <!-- Selector de modo -->
+  <div class="modo-toggle">
+    <button class="modo-btn activo" id="btn-eso" onclick="setModo('ESO')">ESO</button>
+    <button class="modo-btn" id="btn-bach" onclick="setModo('Bachillerato')">Bachillerato</button>
+  </div>
+
+  <!-- Insignias -->
+  <div id="insignias-header" style="display:flex;gap:6px;align-items:center;margin-left:auto;">
+    <span id="ins-primer" class="insignia bloqueada" data-tooltip="🧪 Primer experimento" title="Primer experimento">🧪</span>
+    <span id="ins-precision" class="insignia bloqueada" data-tooltip="🎯 Precisión perfecta" title="Precisión perfecta">🎯</span>
+    <span id="ins-diluciones" class="insignia bloqueada" data-tooltip="⚗️ Maestro de diluciones" title="Maestro de diluciones">⚗️</span>
+    <span id="ins-analista" class="insignia bloqueada" data-tooltip="📊 Analista (10 experimentos)" title="Analista">📊</span>
+    <span style="color:var(--text-secondary);font-size:12px;margin-left:6px;">
+      Adiciones: <strong title="Adiciones de soluto registradas; no cuenta preparaciones correctas" id="contador-exp" style="color:var(--accent-cyan)">0</strong>
+    </span>
+  </div>
+
+  <!-- Botón calculadora integrada -->
+  <button class="btn btn-cyan" style="width:auto;margin-bottom:0;" onclick="toggleCalculadora()">🧮 Calculadora</button>
+
+  <!-- Botón desafío -->
+  <button class="btn btn-purple" style="width:auto;margin-bottom:0;" onclick="abrirDesafio()">🏆 Desafío</button>
+</header>
+
+<!-- ============================================================
+     LAYOUT PRINCIPAL
+============================================================ -->
+<div id="lab-layout">
+
+  <!-- ===== SIDEBAR IZQUIERDO ===== -->
+<aside id="sidebar-left" aria-label="Herramientas del laboratorio"><div class="panel-label">Herramientas</div><button class="lab-menu-trigger" id="menu-recipientes" aria-expanded="false" aria-controls="flotante-recipientes" onclick="alternarPanelLaboratorio('recipientes')">Recipientes<span aria-hidden="true">›</span></button><button class="lab-menu-trigger" id="menu-dosificacion" aria-expanded="false" aria-controls="flotante-dosificacion" onclick="alternarPanelLaboratorio('dosificacion')">Pipeta y bureta<span aria-hidden="true">›</span></button><button class="lab-menu-trigger" id="menu-soluto" aria-expanded="false" aria-controls="flotante-soluto" onclick="alternarPanelLaboratorio('soluto')">Soluto<span aria-hidden="true">›</span></button><button class="lab-menu-trigger" id="menu-agua" aria-expanded="false" aria-controls="flotante-agua" onclick="alternarPanelLaboratorio('agua')">Agua y enrase<span aria-hidden="true">›</span></button><button class="lab-menu-trigger" id="menu-grifo" aria-expanded="false" aria-controls="flotante-grifo" onclick="alternarPanelLaboratorio('grifo')">Grifo<span aria-hidden="true">›</span></button><button class="lab-menu-trigger" id="menu-acciones" aria-expanded="false" aria-controls="flotante-acciones" onclick="alternarPanelLaboratorio('acciones')">Acciones<span aria-hidden="true">›</span></button><button class="lab-menu-trigger" id="menu-dilucion" aria-expanded="false" aria-controls="flotante-dilucion" onclick="alternarPanelLaboratorio('dilucion')">Dilución<span aria-hidden="true">›</span></button><button class="lab-menu-trigger" id="menu-reserva" aria-expanded="false" aria-controls="flotante-reserva" onclick="alternarPanelLaboratorio('reserva')">Disoluciones guardadas<span>›</span></button><button class="lab-menu-trigger" id="menu-reactivos" hidden aria-expanded="false" aria-controls="flotante-reactivos" onclick="alternarPanelLaboratorio('reactivos')">Reactivos ácido-base<span>›</span></button><button class="lab-menu-trigger" id="menu-acidez" aria-expanded="false" aria-controls="flotante-acidez" onclick="alternarPanelLaboratorio('acidez')">pH e indicadores<span>›</span></button><button class="lab-menu-trigger" id="menu-temperatura" aria-expanded="false" aria-controls="flotante-temperatura" onclick="alternarPanelLaboratorio('temperatura')">Temperatura<span>›</span></button><button class="lab-menu-trigger" id="menu-curva" hidden aria-expanded="false" aria-controls="ventana-curva" onclick="alternarCurvaValoracion()">Curva y teoría<span>›</span></button><p class="menu-hint">Selecciona una herramienta.<br>Puedes mover su ventana.</p></aside><section id="flotante-recipientes" class="lab-floating-panel" hidden role="region" aria-labelledby="titulo-recipientes"><div class="lab-floating-header"><h2 id="titulo-recipientes">Recipientes</h2><button type="button" aria-label="Cerrar Recipientes" onclick="cerrarPanelLaboratorio()">×</button></div><div class="lab-floating-body"><!-- Selector de recipiente -->
+    <div class="panel-label">🧫 Recipiente activo</div>
+    <div style="display:flex;flex-wrap:wrap;gap:5px;margin-bottom:8px;">
+      <button class="recipiente-btn" id="rbtn-matraz" onclick="selRecipiente('matraz')">
+        <span class="icon">⚗</span><span class="name">Matraz Aforado</span>
+      </button>
+      <button class="recipiente-btn activo" id="rbtn-vaso" onclick="selRecipiente('vaso')">
+        <span class="icon">🥛</span><span class="name">Vaso Precip.</span>
+      </button>
+      <button class="recipiente-btn" id="rbtn-erlenmeyer" onclick="selRecipiente('erlenmeyer')">
+        <span class="icon">🫙</span><span class="name">Erlenmeyer</span>
+      </button>
+      <button class="recipiente-btn" id="rbtn-probeta" onclick="selRecipiente('probeta')">
+        <span class="icon">🧪</span><span class="name">Probeta</span>
+      </button>
+
+    </div>
+
+    <!-- Personalización de capacidad máxima del recipiente -->
+    <div class="panel-label" style="margin-top:6px;">📏 Capacidad del recipiente</div>
+    <div style="display:flex;align-items:center;gap:6px;margin-bottom:6px;">
+      <input type="number" class="lab-input" id="inp-capacidad" min="10" max="5000" step="10" value="500" oninput="cambiarCapacidadInput()" style="flex:1;">
+      <span style="font-size:12px;color:var(--text-secondary);font-weight:600;">mL</span>
+    </div>
+    <div style="display:flex;gap:4px;flex-wrap:wrap;margin-bottom:4px;">
+      <button type="button" class="btn-preset-cap" id="pcap-50" onclick="setCapacidadRapida(50)">50 mL</button>
+      <button type="button" class="btn-preset-cap" id="pcap-100" onclick="setCapacidadRapida(100)">100 mL</button>
+      <button type="button" class="btn-preset-cap" id="pcap-250" onclick="setCapacidadRapida(250)">250 mL</button>
+      <button type="button" class="btn-preset-cap activo" id="pcap-500" onclick="setCapacidadRapida(500)">500 mL</button>
+      <button type="button" class="btn-preset-cap" id="pcap-1000" onclick="setCapacidadRapida(1000)">1000 mL</button>
+      <button type="button" class="btn-preset-cap" id="pcap-2000" onclick="setCapacidadRapida(2000)">2000 mL</button>
+    </div>
+    <div class="input-warning" id="warn-capacidad" style="font-size:11px;min-height:14px;"></div></div></section>
+<section id="flotante-dosificacion" class="lab-floating-panel" hidden role="region" aria-labelledby="titulo-dosificacion"><div class="lab-floating-header"><h2 id="titulo-dosificacion">Pipeta y bureta</h2><button type="button" aria-label="Cerrar Pipeta y bureta" onclick="cerrarPanelLaboratorio()">×</button></div><div class="lab-floating-body"><section style="border:1px solid var(--accent-cyan);padding:10px;border-radius:8px;margin:12px 0;">
+      <div class="panel-label">Pipeta y bureta · dosificación</div>
+      <label for="dos-tipo">Instrumento</label>
+      <select id="dos-tipo" class="lab-input" onchange="cambiarInstrumentoDosificacion()"><option value="pipeta">Pipeta graduada · 25 mL</option><option value="bureta">Bureta · 50 mL</option></select>
+      <label for="dos-capacidad">Capacidad del instrumento (mL)</label>
+      <input id="dos-capacidad" class="lab-input" type="number" min="0.001" step="any" value="25" onchange="cambiarCapacidadDosificador()">
+      <p class="model-note">Capacidad configurable sin cambiar el tamaño del instrumento. No puede ser inferior al volumen contenido.</p>
+      <div id="dos-visual" style="text-align:center;margin:8px 0"></div>
+      <div id="dos-estado" role="status" aria-live="polite" style="font-size:12px;margin-bottom:8px"></div>
+      <label for="dos-origen">Cargar con</label>
+      <select id="dos-origen" class="lab-input"><option value="agua">Agua destilada</option><option value="r1">Disolución del recipiente 1</option><option value="r2">Disolución del recipiente 2</option></select>
+      <label for="dos-carga">Volumen de carga (mL)</label>
+      <input id="dos-carga" class="lab-input" type="number" min="0.001" step="0.1" value="10">
+      <button class="btn btn-cyan" onclick="cargarDosificador()">Cargar instrumento</button>
+      <label for="dos-destino">Verter en</label>
+      <select id="dos-destino" class="lab-input" onchange="cambiarDestinoDosificador()"><option value="r1">Recipiente 1</option><option value="r2">Recipiente 2</option></select>
+<div class="montaje-actions"><button class="btn btn-cyan" onclick="colocarInstrumento()">Colocar sobre el destino</button><button class="btn btn-gray" onclick="retirarInstrumento()">Retirar de la escena</button></div><p class="model-note">Al cargarlo se coloca sobre el destino. Puedes accionar la llave de la bureta o la pera de la pipeta en la escena.</p>
+      <div id="controles-pipeta">
+      <label for="dos-ml">Dosis (mL)</label>
+      <input id="dos-ml" class="lab-input" type="number" min="0.001" step="0.05" value="1">
+      <button class="btn btn-green" onclick="dosificar(Number(document.getElementById('dos-ml').value))">Añadir los mL indicados</button>
+      <label for="dos-gota">Tamaño de gota (mL, aproximado)</label>
+      <input id="dos-gota" class="lab-input" type="number" min="0.001" max="1" step="0.01" value="0.05">
+      <button class="btn btn-green" onclick="dosificar(Number(document.getElementById('dos-gota').value))">Añadir una gota</button>
+      </div>
+      <div id="controles-bureta" hidden>
+        <div class="panel-label">Llave de la bureta</div>
+        <button id="bureta-llave" class="bureta-llave" onclick="alternarLlaveBureta()" aria-pressed="false" title="Abrir o cerrar la llave">
+          <span class="bureta-palanca" aria-hidden="true"></span><span id="bureta-llave-texto">Abrir llave</span>
+        </button>
+        <label for="bureta-apertura">Apertura: <strong id="bureta-apertura-texto">0 %</strong></label>
+        <input id="bureta-apertura" type="range" min="0" max="100" step="1" value="0" oninput="regularLlaveBureta(Number(this.value))" style="width:100%">
+        <div id="bureta-caudal" style="font-size:12px;margin:4px 0 10px">Llave cerrada · 0,000 mL/s</div>
+        <dl class="bureta-lecturas"><dt>Lectura inicial</dt><dd id="bureta-lectura-inicial">—</dd><dt>Lectura actual</dt><dd id="bureta-lectura-actual">—</dd><dt>Volumen entregado</dt><dd id="bureta-entregado">0,000 mL</dd></dl>
+        <p style="font-size:11px;color:var(--text-secondary)">Abre poco la llave para un goteo lento. El volumen se mide por la diferencia entre las lecturas; cierra la llave cuando quieras detenerlo.</p>
+      </div>
+      <button class="btn btn-orange" onclick="descartarDosificador()">Vaciar instrumento (descartar)</button>
+      <div class="input-error" id="err-dosificador"></div>
+    </section></div></section>
+<section id="flotante-soluto" class="lab-floating-panel" hidden role="region" aria-labelledby="titulo-soluto"><div class="lab-floating-header"><h2 id="titulo-soluto">Soluto</h2><button type="button" aria-label="Cerrar Soluto" onclick="cerrarPanelLaboratorio()">×</button></div><div class="lab-floating-body"><!-- Selector de soluto -->
+    <div class="panel-label">🧂 Soluto</div>
+    <select class="lab-input" id="sel-soluto" style="margin-bottom:8px;" onchange="onSolutoChange()">
+      <option value="NaCl">Cloruro de sodio — NaCl</option>
+      <option value="CuSO4">Sulfato de cobre(II) — CuSO₄</option>
+      <option value="KMnO4">Permanganato de potasio — KMnO₄</option>
+      <option value="glucosa">Glucosa — C₆H₁₂O₆</option>
+      <option value="KI">Yoduro de potasio — KI</option>
+      <option value="CoCl2">Cloruro de cobalto(II) — CoCl₂</option>
+      <option value="AgNO3">Nitrato de plata — AgNO₃</option>
+      <option value="NaOH">Hidróxido de sodio — NaOH</option>
+      <option value="NaHCO3">Bicarbonato de sodio — NaHCO₃</option>
+      <option value="H2SO4">Ácido sulfúrico (diluido) — H₂SO₄</option>
+    </select>
+    <div style="font-size:11px;color:var(--text-secondary);margin-bottom:8px;">
+      M = <span id="info-M" style="color:var(--accent-cyan);font-weight:700;">58.44</span> g/mol &nbsp;|&nbsp;
+      Sol<sub>max</sub> = <span id="info-solmax" style="color:var(--accent-cyan);font-weight:700;">360</span> g/L &nbsp;|&nbsp;
+      v<sub>ap</sub> = <span id="info-vap" style="color:var(--accent-yellow);font-weight:700;">0.35</span> mL/g
+    </div>
+
+    <!-- Radio: gramos o moles -->
+    <div class="panel-label">⚖️ Cantidad de soluto</div>
+    <div class="radio-group">
+      <label>
+        <input type="radio" name="unidad-soluto" value="gramos" id="radio-gramos" checked onchange="onRadioUnidad()">
+        <span>Gramos (g)</span>
+      </label>
+      <label>
+        <input type="radio" name="unidad-soluto" value="moles" id="radio-moles" onchange="onRadioUnidad()">
+        <span>Moles (mol)</span>
+      </label>
+    </div>
+
+    <div style="display:flex;gap:6px;margin-bottom:4px;">
+      <div style="flex:1;">
+        <label style="font-size:11px;color:var(--text-secondary);">Masa (g)</label>
+        <input type="number" class="lab-input" id="inp-gramos" placeholder="0.00" min="0" step="0.01" oninput="sincronizarSoluto('gramos')">
+      </div>
+      <div style="flex:1;">
+        <label style="font-size:11px;color:var(--text-secondary);">Moles (mol)</label>
+        <input type="number" class="lab-input" id="inp-moles" placeholder="0.00" min="0" step="0.0001" oninput="sincronizarSoluto('moles')">
+      </div>
+    </div>
+    <div class="input-error" id="err-soluto"></div>
+
+    <button class="btn btn-cyan" onclick="agregarSoluto()">➕ Añadir soluto</button></div></section>
+<section id="flotante-agua" class="lab-floating-panel" hidden role="region" aria-labelledby="titulo-agua"><div class="lab-floating-header"><h2 id="titulo-agua">Agua y enrase</h2><button type="button" aria-label="Cerrar Agua y enrase" onclick="cerrarPanelLaboratorio()">×</button></div><div class="lab-floating-body"><!-- Disolvente y Enrase -->
+    <div class="panel-label">💧 Disolvente y Enrase (H₂O)</div>
+
+    <!-- Opción 1: Añadir agua pura fija -->
+    <div style="background:rgba(26,31,46,0.6);border:1px solid var(--border-color);border-radius:6px;padding:8px;margin-bottom:8px;">
+      <div style="font-size:11px;color:var(--text-secondary);font-weight:600;margin-bottom:5px;">
+        1. Añadir volumen de H₂O fija:
+      </div>
+      <div style="display:flex;gap:6px;">
+        <input type="number" class="lab-input" id="inp-disolvente" placeholder="mL de H₂O" min="0" step="1" style="flex:1;">
+        <button class="btn btn-green" style="width:auto;padding:6px 10px;margin-bottom:0;" onclick="agregarDisolvente()" title="Añade este volumen exacto de agua destilada">💧 + H₂O</button>
+      </div>
+      <div style="font-size:10px;color:var(--text-muted);margin-top:4px;">
+        *El volumen puede aumentar o contraerse al disolver, seg&#250;n el soluto y la concentraci&#243;n.
+      </div>
+    </div>
+
+    <!-- Opción 2: Enrase analítico hasta marca -->
+    <div style="background:rgba(0,188,212,0.06);border:1px solid rgba(0,188,212,0.35);border-radius:6px;padding:8px;margin-bottom:6px;">
+      <div style="font-size:11px;color:var(--accent-cyan);font-weight:700;margin-bottom:5px;">
+        2. Enrase analítico (hasta marca):
+      </div>
+      <div style="display:flex;gap:6px;margin-bottom:6px;">
+        <input type="number" class="lab-input" id="inp-enrase" placeholder="Vol. final (mL)" min="0" step="1" style="flex:1;">
+        <button class="btn btn-cyan" style="width:auto;padding:6px 10px;margin-bottom:0;font-size:12px;" onclick="enrasarHastaVolumen()" title="Añade el agua destilada necesaria para alcanzar este volumen final exacto de disolución">🎯 Enrasar a V</button>
+      </div>
+      <button class="btn btn-cyan" style="font-size:12px;padding:7px 10px;margin-bottom:0;" onclick="enrasarHastaCapacidad()" id="btn-enrase-aforo" title="Enrasar hasta la línea de aforo nominal de este recipiente">
+        ⚗️ Enrasar hasta marca de aforo (500 mL)
+      </button>
+      <div style="font-size:10px;color:var(--text-secondary);margin-top:4px;">
+        Añade el agua justa para que V<sub>disolución</sub> sea exactamente la marca.
+      </div>
+    </div><div class="input-error" id="err-disolvente"></div></div></section>
+<section id="flotante-grifo" class="lab-floating-panel" hidden role="region" aria-labelledby="titulo-grifo"><div class="lab-floating-header"><h2 id="titulo-grifo">Grifo</h2><button type="button" aria-label="Cerrar Grifo" onclick="cerrarPanelLaboratorio()">×</button></div><div class="lab-floating-body"><div style="border:1px solid var(--accent-cyan);border-radius:8px;padding:10px;margin:10px 0;">
+  <div class="panel-label">Grifo de agua</div>
+  <label for="grifo-caudal">Caudal: <strong id="grifo-caudal-label">10</strong> mL/s</label>
+  <input id="grifo-caudal" type="range" min="0" max="50" step="0.5" value="10" style="width:100%" oninput="document.getElementById('grifo-caudal-label').textContent=this.value">
+  <label for="grifo-limite">Límite de volumen final (mL)</label>
+  <input id="grifo-limite" class="lab-input" type="number" min="0.1" step="0.1" placeholder="Vacío: capacidad del recipiente">
+  <button id="grifo-boton" class="btn btn-green" onclick="alternarGrifo()">Abrir grifo</button>
+  <div id="grifo-estado" role="status" aria-live="polite" style="font-size:12px">Cerrado. Se detiene automáticamente en el límite.</div>
+</div>
+</div></section>
+<section id="flotante-acciones" class="lab-floating-panel" hidden role="region" aria-labelledby="titulo-acciones"><div class="lab-floating-header"><h2 id="titulo-acciones">Acciones</h2><button type="button" aria-label="Cerrar Acciones" onclick="cerrarPanelLaboratorio()">×</button></div><div class="lab-floating-body">
+    <div class="panel-label">⚙️ Acciones</div>
+    <label for="vertido-ml">Verter del vaso al matraz (mL)</label>
+    <input id="vertido-ml" class="lab-input" type="number" min="0.001" step="0.1" placeholder="Vacío: todo lo que quepa">
+    <button id="btn-verter" class="btn btn-orange" onclick="iniciarVertido()">Verter vaso → matraz</button>
+    <button id="btn-parar-vertido" class="btn btn-gray" hidden onclick="detenerVertido()">Detener vertido</button>
+    <div id="estado-vertido" role="status" aria-live="polite" style="font-size:12px;margin-bottom:10px">Solo del vaso de precipitados al matraz aforado.</div>
+    <div id="err-vertido" class="input-error"></div>
+    <button class="btn btn-purple" onclick="agitarRecipiente()">🌀 Agitar con física (Vórtex / Sloshing)</button>
+    <button class="btn btn-red" onclick="vaciarRecipiente()">🗑️ Vaciar recipiente</button>
+
+    
+
+    </div></section>
+<section id="flotante-dilucion" class="lab-floating-panel" hidden role="region" aria-labelledby="titulo-dilucion"><div class="lab-floating-header"><h2 id="titulo-dilucion">Dilución</h2><button type="button" aria-label="Cerrar Dilución" onclick="cerrarPanelLaboratorio()">×</button></div><div class="lab-floating-body"><div id="seccion-dilucion" style="display:none;">
+      <div class="panel-label">🔬 Dilución (C₁V₁ = C₂V₂)</div>
+      <div class="dil-grid">
+        <div class="dil-cell">
+          <label>C₁ (mol/L)</label>
+          <input type="number" class="lab-input" id="dil-c1" placeholder="?" min="0" step="0.001">
+        </div>
+        <div class="dil-cell">
+          <label>V₁ (mL)</label>
+          <input type="number" class="lab-input" id="dil-v1" placeholder="?" min="0" step="0.1">
+        </div>
+        <div class="dil-cell">
+          <label>C₂ (mol/L)</label>
+          <input type="number" class="lab-input" id="dil-c2" placeholder="?" min="0" step="0.001">
+        </div>
+        <div class="dil-cell">
+          <label>V₂ (mL)</label>
+          <input type="number" class="lab-input" id="dil-v2" placeholder="?" min="0" step="0.1">
+        </div>
+      </div>
+      <div class="input-error" id="err-dilucion" style="margin-bottom:4px;"></div>
+      <div id="res-dilucion" style="color:var(--accent-green);font-size:12px;margin-bottom:5px;min-height:16px;"></div>
+      <button class="btn btn-purple" onclick="calcularDilucion()">🔭 Calcular incógnita</button>
+      
+    </div></div></section>
+
+<section id="flotante-reserva" class="lab-floating-panel" hidden role="region" aria-labelledby="titulo-reserva"><div class="lab-floating-header"><h2 id="titulo-reserva">Disoluciones guardadas</h2><button aria-label="Cerrar reserva" onclick="cerrarPanelLaboratorio()">×</button></div><div class="lab-floating-body"><label for="reserva-nombre">Etiqueta de la disolución</label><input id="reserva-nombre" class="lab-input" maxlength="60" placeholder="Ej.: NaCl 0,1 M"><button class="btn btn-cyan" onclick="guardarDisolucion()">Guardar el recipiente activo</button><p style="font-size:12px;color:var(--text-secondary)">El matraz pasa a la reserva y queda otro vacío en la mesa. Al recuperar uno, el contenido actual de la mesa se guarda a su vez.</p><div id="reserva-mensaje" role="status" aria-live="polite"></div><div id="reserva-lista"></div></div></section>
+<section id="flotante-reactivos" class="lab-floating-panel" hidden role="region" aria-labelledby="titulo-reactivos"><div class="lab-floating-header"><h2 id="titulo-reactivos">Reactivos ácido-base</h2><button aria-label="Cerrar Reactivos ácido-base" onclick="cerrarPanelLaboratorio()">×</button></div><div class="lab-floating-body"><div id="ab-preparacion"><label for="ab-metodo">Forma de preparar</label><select id="ab-metodo" class="lab-input" onchange="actualizarMetodoReactivoAB()"><option value="cantidad">Cantidad de reactivo (g o mol)</option><option value="concentracion">Disolución por concentración y volumen añadido</option></select><label for="ab-reactivo">Reactivo</label><select id="ab-reactivo" class="lab-input" onchange="actualizarMetodoReactivoAB()"><option value="NaOH">NaOH · base fuerte</option><option value="HCl">HCl · ácido fuerte</option><option value="H2SO4">H₂SO₄ · Ácido sulfúrico — diprótico, primera disociación fuerte</option><option value="H2Mal">C₃H₄O₄ · Ácido malónico — diprótico débil</option><option value="CH3COOH">CH₃COOH · Ácido acético · ácido débil</option><option value="NH3">NH₃ · Amoniaco · base débil</option><option value="NaCl">NaCl · sal neutra</option></select><div id="ab-cantidad-campos"><label for="ab-cantidad">Cantidad que vas a añadir</label><div style="display:flex;gap:8px"><input id="ab-cantidad" class="lab-input" type="number" min="0.000001" step="0.01" value="0.4"><select id="ab-unidad" class="lab-input"><option value="gramos">g</option><option value="moles">mol</option></select></div><p id="ab-forma-reactivo" class="model-note">NaOH sólido: pesa los gramos o indica los moles y añade agua después.</p><p class="model-note">Puedes añadir a agua ya presente o añadir agua después desde «Agua y enrase» o el grifo. El agua añadida y el volumen final son cantidades distintas.</p></div><div id="ab-concentracion-campos" hidden><label for="ab-concentracion">Concentración (mol/L)</label><input id="ab-concentracion" class="lab-input" type="number" value="0.1" min="0.000001" max="1" step="0.01"><label for="ab-volumen">Volumen de disolución que añades (mL)</label><input id="ab-volumen" class="lab-input" type="number" value="100" min="0.1" step="1"><p class="model-note">Puedes preparar en vacío o reponer la misma sustancia a la misma concentración. El volumen indicado se suma al contenido actual, sin superar la capacidad.</p></div><button id="ab-preparar-boton" class="btn btn-cyan" onclick="prepararReactivoAB()">Añadir reactivo</button><div id="err-reactivos" class="input-error"></div><p class="model-note">El pH usa concentraciones ideales: las disoluciones concentradas se representan solo de forma aproximada.</p></div></div></section><section id="flotante-acidez" class="lab-floating-panel" hidden role="region" aria-labelledby="titulo-acidez"><div class="lab-floating-header"><h2 id="titulo-acidez">pH e indicadores</h2><button aria-label="Cerrar pH e indicadores" onclick="cerrarPanelLaboratorio()">×</button></div><div class="lab-floating-body"><button class="btn btn-cyan" onclick="activarMedidorPH()">Medir pH del recipiente activo</button><label for="ab-indicador">Indicador</label><select id="ab-indicador" class="lab-input"><option value="fenolftaleina">Fenolftaleína · incolora / rosa (8,3–10)</option><option value="naranja">Naranja de metilo · roja / amarilla (3,2–4,4)</option><option value="azul">Azul de bromotimol · amarilla / azul (6–7,6)</option><option value="">Sin indicador</option></select><button class="btn btn-green" onclick="aplicarIndicador()">Aplicar indicador</button><div id="err-acidez" class="input-error"></div><p style="font-size:11px;color:var(--text-secondary)">Se modela una traza de indicador de volumen despreciable. Su color estima el pH; el medidor da el valor numérico. La fenolftaleína es rosa por encima de pH 10 y se decolora al bajar aproximadamente de 10 a 8,3. A pH 7 es incolora. No se simula aquí la decoloración lenta en medio extremadamente alcalino.</p></div></section><section id="flotante-temperatura" class="lab-floating-panel" hidden role="region" aria-labelledby="titulo-temperatura"><div class="lab-floating-header"><h2 id="titulo-temperatura">Temperatura</h2><button aria-label="Cerrar Temperatura" onclick="cerrarPanelLaboratorio()">×</button></div><div class="lab-floating-body"><p>Recipiente activo: <strong id="temp-actual">25,0 °C</strong></p><div id="temp-aviso-aforo" class="aviso-aforo" hidden>No calentar el material aforado: la temperatura altera el volumen respecto a su marca y un calentamiento inadecuado puede alterar su calibración. Aforar a la temperatura de calibración.</div><label for="temp-objetivo">Temperatura objetivo (25–95 °C)</label><input id="temp-objetivo" class="lab-input" type="number" min="25" max="95" step="1" value="50"><button id="temp-calentar" class="btn btn-orange" onclick="calentarRecipiente()">Encender placa</button><button class="btn btn-gray" onclick="apagarCalentamiento()">Apagar placa</button><div id="temp-estado" role="status">Placa apagada</div><p style="font-size:11px;color:var(--text-secondary)">Calentamiento gradual y enfriamiento hacia 25 °C. La densidad y el volumen cambian con la temperatura donde hay datos. Sin evaporación ni calor de neutralización. La simulación de cada módulo se pausa al cambiar al otro.</p></div></section>
+<section id="ventana-curva" class="lab-floating-panel" hidden role="region" aria-labelledby="titulo-curva"><div class="lab-floating-header"><h2 id="titulo-curva">Curva de valoración y teoría</h2><button aria-label="Cerrar curva" onclick="alternarCurvaValoracion()">×</button></div><div class="lab-floating-body"><p id="curva-estado" role="status"></p><div class="curve-toolbar"><button class="btn btn-gray" onclick="nuevaCurvaValoracion()">Nueva valoración</button><button class="btn btn-gray" onclick="exportarCurvaValoracion()">Exportar CSV</button><label><input id="curva-poh" type="checkbox" onchange="actualizarCurvaValoracion()"> Mostrar pOH</label></div><svg id="curva-svg" viewBox="0 0 680 320" role="img" aria-label="pH frente a volumen de reactivo añadido con bureta"></svg><div class="curve-legend"><span>● pH medido</span><span>┄ referencia teórica</span><span>│ equivalencia prevista</span></div><p id="curva-detalle" class="model-note">Pasa el ratón por la gráfica para consultar las medidas.</p><p id="curva-equivalencia"></p><p id="curva-condiciones" class="model-note"></p><details class="curve-theory"><summary>Teoría: cómo interpretar las curvas</summary><p><strong>Qué representa.</strong> El eje horizontal muestra los mL que salen de la bureta desde el inicio de esta valoración, independientemente del caudal. El eje vertical muestra el pH; opcionalmente puedes ver el pOH. Añadir base a un ácido hace subir el pH; añadir ácido a una base lo hace bajar.</p><p><strong>Acidez y basicidad.</strong> pH = −log[H₃O⁺] y pOH = −log[OH⁻], en la aproximación ideal. pH + pOH = pKw: aproximadamente 14 a 25 °C. Por eso, si sube el pH, baja el pOH a temperatura constante.</p><p><strong>Equivalencia y punto final.</strong> La equivalencia se alcanza cuando han reaccionado cantidades estequiométricas de ácido y base. Para reactivos monopróticos 1:1: C<sub>a</sub>V<sub>a</sub> = C<sub>b</sub>V<sub>b</sub>. La línea vertical marca el volumen previsto para un valorante fuerte puro. El punto final es el cambio de color observado del indicador; puede diferir ligeramente de la equivalencia.</p><p><strong>Fuerte–fuerte.</strong> HCl y NaOH presentan un salto pronunciado cerca de la equivalencia. A 25 °C, el pH de equivalencia está cerca de 7; a otras temperaturas el pH neutro cambia. Antes y después domina el reactivo en exceso.</p><p><strong>Ácido débil–base fuerte.</strong> El ácido acético y el acetato forman una región tampón. A semiequivalencia, pH ≈ pK<sub>a</sub> ≈ 4,74. En equivalencia, la hidrólisis del acetato hace que el pH sea mayor que el neutro. La fenolftaleína suele ser apropiada porque su viraje cae en el salto.</p><p><strong>Base débil–ácido fuerte.</strong> Amoniaco y amonio forman una región tampón. En la equivalencia predomina el amonio y el medio es ácido. Conviene un indicador cuyo intervalo esté dentro del salto; no hay un indicador universalmente válido para todas las valoraciones.</p><p><strong>Ácidos dipróticos.</strong> El ácido malónico (pKa₁ = 2,83; pKa₂ = 5,69) tiene dos disociaciones débiles. El sulfúrico tiene la primera completa y la segunda parcial (Ka₂ = 0,012). Se calculan las especies HA⁻ y A²⁻ mediante balance de carga.</p><p><strong>Comparar curvas.</strong> Prepara 25 mL de ácido malónico 0,1 mol/L y añade NaOH 0,1 mol/L desde la bureta. Repite con sulfúrico a la misma concentración. Las etapas están en 25 y 50 mL en ambos casos. El malónico presenta regiones tampón y el sulfúrico parte de un pH menor. No siempre hay dos saltos nítidos: las etapas se solapan, especialmente en el sulfúrico. Después de la segunda domina el exceso de NaOH. La fenolftaleína puede señalar el entorno de la segunda etapa, no la primera.</p><p><strong>Fuentes.</strong> <a href="https://pubchem.ncbi.nlm.nih.gov/compound/867" target="_blank" rel="noopener">PubChem: malónico</a>; <a href="https://www.chem1.com/acad/webtext/acid2/acid2-3.html" target="_blank" rel="noopener">Chem1: sulfúrico</a>. Constantes aproximadas a 25 °C; volúmenes aparentes didácticos.</p><p><strong>Fenolftaleína.</strong> Incolora por debajo de aproximadamente 8,3; rosa cada vez más intenso entre 8,3 y 10 y rosa por encima de 10 en este modelo. Si partes de una base y añades ácido, el rosa desaparece antes de llegar a pH 7. El modelo no reproduce la cinética de decoloración que puede aparecer en medios extremadamente alcalinos.</p><p><strong>Qué se calcula.</strong> Los puntos continuos son medidas del ensayo real. La referencia discontinua usa los balances de materia y carga, la dilución, la autoprotólisis del agua y los equilibrios débiles. La banda coloreada es el intervalo del indicador. Se conservan pausas y recargas con el mismo valorante; si cambias la muestra o la concentración del valorante se inicia otra serie al abrir la llave.</p><p><strong>Límites.</strong> Se asume comportamiento ideal; a concentración alta no se corrigen actividades. Los equilibrios débiles usan valores de referencia a 25 °C. Cambiar temperatura durante el ensayo puede separar las medidas de la referencia inicial.</p><p><a href="https://openstax.org/books/chemistry-2e/pages/14-7-acid-base-titrations" target="_blank" rel="noopener">Fundamentos: OpenStax, valoraciones ácido-base</a></p></details></div></section>
+  <!-- ===== PANEL CENTRAL ===== -->
+  <main id="panel-central" class="bancada-texture">
+
+    <!-- Barra de control 3D superior -->
+    <div id="toolbar-3d">
+      <div style="display:flex;gap:6px;align-items:center;">
+        <button class="btn-3d-tool" onclick="resetearCamara3D()" title="Restablecer vista centrada">🔄 Vista inicial</button>
+        <label class="liquid-picker" for="render-liquido">Líquido <select id="render-liquido" onchange="cambiarRenderLiquido(this.value)"><option value="mejorado">Mejorado</option><option value="clasico">Anterior</option></select></label>
+        <button class="btn-3d-tool" id="btn-malla" aria-pressed="false" onclick="alternarMalla3D()" title="Mostrar u ocultar la malla de referencia">Malla</button>
+        <button class="btn-3d-tool" id="btn-autogiro" onclick="toggleAutoGiro()" title="Giro automático suave">▶️ Auto-giro</button>
+        <button class="btn-3d-tool" onclick="agitarRecipiente()" title="Agitar líquido con remolino y física">🌀 Agitar</button>
+      </div>
+      <div class="ctrl-pill" id="badge-info-3d">
+        <span>🖱️ Arrastra para rotar 360°</span>
+        <span style="color:var(--text-muted);">|</span>
+        <span>📜 Zoom con rueda</span>
+      </div>
+    </div>
+
+    <!-- Viewport 3D WebGL con Three.js -->
+    <div id="canvas-3d-container"></div>
+
+    <!-- Canvas para partículas 2D (fallback o superpuesto) -->
+    <canvas id="particles-canvas"></canvas>
+
+    <!-- Mesa de trabajo 2D (alternativa y fallback) -->
+    <div id="mesa-trabajo" style="display:none;">
+      <!-- Recipiente 1 -->
+      <div class="recipiente-wrapper" id="wrapper-r1">
+        <div class="svg-container" id="svg-r1"></div>
+        <div class="recipiente-info">
+          <strong id="nombre-r1">Vaso de Precipitados</strong>
+          <div id="vol-r1">0 mL / 600 mL</div>
+          <div id="pct-r1" style="color:var(--accent-cyan);">0% lleno</div>
+        </div>
+        <button class="btn btn-gray" style="font-size:11px;padding:4px 10px;width:auto;margin-bottom:0;" onclick="seleccionarMesa(1)">▶ Activo</button>
+      </div>
+
+      <!-- Recipiente 2 -->
+      <div class="recipiente-wrapper" id="wrapper-r2" style="opacity:0.5;">
+        <div class="svg-container" id="svg-r2"></div>
+        <div class="recipiente-info">
+          <strong id="nombre-r2">—</strong>
+          <div id="vol-r2">Vacío</div>
+          <div id="pct-r2"></div>
+        </div>
+        <button class="btn btn-gray" style="font-size:11px;padding:4px 10px;width:auto;margin-bottom:0;" onclick="seleccionarMesa(2)">Usar 2°</button>
+      </div>
+    </div>
+
+    <!-- Indicador inferior de recipientes en bancada -->
+    <div style="position:absolute;bottom:10px;left:0;right:0;display:flex;justify-content:center;gap:12px;z-index:20;pointer-events:none;">
+      <button class="btn-3d-tool" id="pill-r1" style="pointer-events:auto;background:rgba(20,25,38,0.85);backdrop-filter:blur(4px);padding:5px 12px;" onclick="seleccionarMesa(1)">
+        ⚗️ R1: <span id="label-r1-quick">500 mL (Activo)</span>
+      </button>
+      <button class="btn-3d-tool" id="pill-r2" style="pointer-events:auto;background:rgba(20,25,38,0.85);backdrop-filter:blur(4px);padding:5px 12px;opacity:0.7;" onclick="seleccionarMesa(2)">
+        🥛 R2: <span id="label-r2-quick">600 mL</span>
+      </button>
+    </div>
+<section id="estante-reserva" aria-label="Estante de disoluciones" hidden><button class="estante-title" onclick="alternarPanelLaboratorio('reserva')">Disoluciones guardadas</button><div id="estante-lista"></div></section>
+<div id="aviso-vertido" hidden role="status"><span id="progreso-vertido"></span><button onclick="detenerVertido()">Detener</button></div>
+<div id="aviso-bureta" hidden><span id="bureta-aviso-texto"></span><button onclick="cerrarLlaveBureta()">Cerrar llave</button></div>
+  </main>
+
+  <!-- ===== SIDEBAR DERECHO ===== -->
+  <aside id="sidebar-right">
+
+    <!-- Balance Volumétrico de Disolución (Química Analítica) -->
+    <div class="panel-label volumes-heading">📏 Volúmenes (Química Analítica)</div>
+    <div class="volumes-panel" style="background:rgba(20,28,45,0.7);border:1px solid var(--border-color);border-radius:8px;padding:8px 10px;margin-bottom:12px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:5px;">
+        <span style="color:var(--text-secondary);" title="Volumen final medido de la disolución. Determina el nivel del líquido y la concentración molar: C = n / V_disolución">🧪 V<sub>disolución</sub>:</span>
+        <strong id="res-vol-disolucion" style="color:var(--accent-cyan);">0.0 mL</strong>
+      </div>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
+        <span style="color:var(--text-secondary);" title="Volumen de agua destilada pura aportada (volumen equivalente a 25 °C; la masa se calcula con la densidad del agua)">💧 Agua (25 °C):</span>
+        <span id="res-vol-disolvente" style="color:#fff;font-weight:600;">0.0 mL</span>
+      </div>
+      <div style="display:flex;justify-content:space-between;align-items:center;">
+        <span style="color:var(--text-secondary);" title="Cambio del volumen respecto al agua a la temperatura actual; puede ser negativo por contracción">➕ ΔV al disolver:</span>
+        <span id="res-delta-v-soluto" style="color:var(--accent-yellow);font-weight:600;">0.0 mL</span>
+      </div>
+    </div>
+
+<div class="density-status"><div class="conc-row"><span>Densidad</span><strong id="res-densidad">—</strong></div><p id="modelo-volumen"></p><p id="aviso-modelo-volumen" role="status"></p><details><summary>Modelo de volumen y límites</summary><p>Un soluto: densidad de Laliberté (2009), según masa y temperatura, cuando hay parámetros verificados. Se admite contracción o expansión. El enrase resuelve numéricamente el agua necesaria.</p><p>Glucosa, ácido malónico, KMnO₄ y AgNO₃, y las mezclas de reactivos, conservan un volumen aproximado. Los avisos indican extrapolación fuera de los datos. El modelo presupone disolución completa: los límites de datos no sustituyen a la solubilidad.</p><p>El agua se conserva como masa; su volumen equivalente se indica a 25 °C. Los parámetros corresponden a las formas anhidras actuales.</p><a href="https://doi.org/10.1021/je8008123" target="_blank" rel="noopener">Laliberté, 2009 · datos originales</a></details></div>
+<div class="module-summary"><span id="etiqueta-modulo">Disoluciones</span><button onclick="alternarPanelLaboratorio('temperatura')" title="Control de temperatura"><span id="temperatura-resumen">25,0 °C</span></button></div>
+<section id="panel-acidez" hidden><div class="panel-label">pH del recipiente activo</div><div class="ph-reading"><strong id="ab-ph">—</strong><span id="ab-caracter">Sin líquido</span></div><div class="ph-scale"><i id="ab-cursor"></i></div><div class="ph-scale-labels"><span>0 · ácido</span><span>14 · básico</span></div><div class="conc-row"><span>pOH</span><span id="ab-poh">—</span></div><div class="conc-row"><span>pH neutro a esta T</span><span id="ab-neutral">—</span></div><div class="conc-row"><span>Temperatura</span><span id="ab-temperatura">25 °C</span></div><div class="conc-row"><span id="ab-indicador-actual">Sin indicador</span><i id="ab-color"></i></div><button class="btn btn-gray" onclick="alternarCurvaValoracion()">Ver curva y teoría</button><p id="ab-mezcla"></p><p class="model-note">Modelo didáctico de disolución ideal. Equilibrios débiles aproximados a 25 °C; Kw del agua varía con la temperatura. Se admiten HCl, NaOH, ácido acético, amoniaco, ácido sulfúrico, ácido malónico y NaCl.</p></section>
+<div id="resultados-disoluciones">
+    <!-- Concentraciones -->
+    <div class="panel-label">📊 Concentraciones</div>
+
+    <div class="conc-row">
+      <span class="conc-label">C — Molaridad</span>
+      <span class="conc-value" id="res-molaridad">— mol/L</span>
+    </div>
+    <div class="conc-row">
+      <span class="conc-label">C<sub>m</sub> — Másica</span>
+      <span class="conc-value" id="res-masica">— g/L</span>
+    </div>
+    <div class="conc-row">
+      <span class="conc-label">% masa</span>
+      <span class="conc-value" id="res-pmasa">— %</span>
+    </div>
+    <div class="conc-row">
+      <span class="conc-label">ppm</span>
+      <span class="conc-value" id="res-ppm">— ppm</span>
+    </div>
+    <div class="conc-row" id="row-molalidad">
+      <span class="conc-label">m — Molalidad</span>
+      <span class="conc-value" id="res-molalidad">— mol/kg</span>
+    </div>
+
+    <hr class="lab-divider">
+
+    <!-- Saturación -->
+    <div class="panel-label">⚠️ Saturación</div>
+    <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--text-secondary);margin-bottom:4px;">
+      <span>0%</span>
+      <span id="pct-sat-label" style="font-weight:700;color:var(--accent-cyan);">0%</span>
+      <span>100%</span>
+    </div>
+    <div class="sat-bar-track">
+      <div class="sat-bar-fill" id="sat-bar" style="width:0%;background:#4caf50;"></div>
+    </div>
+    <div class="alerta-sat" id="alerta-saturacion" style="margin-top:8px;">
+      ⚠️ ¡Solución saturada! No puede disolver más soluto.
+    </div>
+
+    <hr class="lab-divider">
+
+</div>
+    <!-- Acciones del cuaderno -->
+    <div style="display:flex;gap:6px;margin-bottom:8px;">
+      <button class="btn btn-gray" style="font-size:12px;margin-bottom:0;" onclick="deshacerOperacion()">↩ Deshacer</button>
+      <button class="btn btn-cyan" style="font-size:12px;margin-bottom:0;" onclick="exportarTXT()">📄 Exportar TXT</button>
+    </div>
+
+    <!-- Cuaderno de laboratorio -->
+    <div class="panel-label">📒 Cuaderno de laboratorio</div>
+    <div class="cuaderno" id="cuaderno-hist">
+      <div class="cuaderno-linea" style="color:#888;font-style:italic;">Las operaciones aparecerán aquí...</div>
+    </div>
+
+  </aside>
+
+</div><!-- fin #lab-layout -->
+
+
+<!-- ============================================================
+     CALCULADORA CIENTÍFICA FLOTANTE (Punto 3)
+============================================================ -->
+<div id="panel-calculadora" class="calc-panel" style="display:none;">
+  <div class="calc-header" id="calc-drag-handle">
+    <div style="display:flex;align-items:center;gap:6px;">
+      <span>🧮 Calculadora Científica</span>
+      <span style="font-size:10px;color:var(--text-muted);font-weight:normal;">(Arrastrable)</span>
+    </div>
+    <div style="display:flex;gap:4px;align-items:center;">
+      <button class="calc-btn-header" onclick="toggleCalcMinimizar()" id="btn-calc-min" title="Minimizar / Restaurar">🗕</button>
+      <button class="calc-btn-header" onclick="cerrarCalculadora()" title="Cerrar">✕</button>
+    </div>
+  </div>
+
+  <div id="calc-body">
+    <div class="calc-screen">
+      <div class="calc-expr" id="calc-expr-display">&nbsp;</div>
+      <div class="calc-value" id="calc-val-display">0</div>
+    </div>
+
+    <div class="calc-grid">
+      <!-- Fila 1: Edición y agrupamiento -->
+      <button class="calc-btn calc-btn-clear" onclick="calcClear()" title="Borrar todo (Esc)">C</button>
+      <button class="calc-btn calc-btn-clear" onclick="calcClearEntry()" title="Borrar entrada">CE</button>
+      <button class="calc-btn calc-btn-op" onclick="calcBackspace()" title="Retroceso (Backspace)">⌫</button>
+      <button class="calc-btn calc-btn-op" onclick="calcInput('(')">(</button>
+      <button class="calc-btn calc-btn-op" onclick="calcInput(')')">)</button>
+
+      <!-- Fila 2: Funciones científicas de química -->
+      <button class="calc-btn calc-btn-fn" onclick="calcFn('log')" title="Logaritmo decimal (base 10, para pH)">log</button>
+      <button class="calc-btn calc-btn-fn" onclick="calcFn('ln')" title="Logaritmo natural">ln</button>
+      <button class="calc-btn calc-btn-fn" onclick="calcFn('sqrt')" title="Raíz cuadrada (para equilibrios Ka)">√</button>
+      <button class="calc-btn calc-btn-fn" onclick="calcInput('^2')" title="Elevar al cuadrado">x²</button>
+      <button class="calc-btn calc-btn-fn" onclick="calcInput('^')" title="Potencia x^y">xʸ</button>
+
+      <!-- Fila 3: Constantes químicas y potencias -->
+      <button class="calc-btn calc-btn-fn" onclick="calcFn('pow10')" title="Potencia de 10 (10^x, para calcular [H+] con pH)">10ˣ</button>
+      <button class="calc-btn calc-btn-fn" onclick="calcInput('e')" title="Notación exponencial / científica (EXP)">EXP</button>
+      <button class="calc-btn calc-btn-fn" onclick="calcInput('3.14159')" title="Número Pi">π</button>
+      <button class="calc-btn calc-btn-fn" onclick="calcInvertSign()" title="Cambiar signo (±)">±</button>
+      <button class="calc-btn calc-btn-op" onclick="calcInput('/')">÷</button>
+
+      <!-- Fila 4: 7, 8, 9, Ans, Multiplicación -->
+      <button class="calc-btn" onclick="calcInput('7')">7</button>
+      <button class="calc-btn" onclick="calcInput('8')">8</button>
+      <button class="calc-btn" onclick="calcInput('9')">9</button>
+      <button class="calc-btn calc-btn-fn" onclick="calcAns()" title="Último resultado calculado">Ans</button>
+      <button class="calc-btn calc-btn-op" onclick="calcInput('*')">×</button>
+
+      <!-- Fila 5: 4, 5, 6, Inverso 1/x, Resta -->
+      <button class="calc-btn" onclick="calcInput('4')">4</button>
+      <button class="calc-btn" onclick="calcInput('5')">5</button>
+      <button class="calc-btn" onclick="calcInput('6')">6</button>
+      <button class="calc-btn calc-btn-fn" onclick="calcReciprocal()" title="Inverso multiplicativo 1/x">1/x</button>
+      <button class="calc-btn calc-btn-op" onclick="calcInput('-')">−</button>
+
+      <!-- Fila 6: 1, 2, 3, Suma, Igual -->
+      <button class="calc-btn" onclick="calcInput('1')">1</button>
+      <button class="calc-btn" onclick="calcInput('2')">2</button>
+      <button class="calc-btn" onclick="calcInput('3')">3</button>
+      <button class="calc-btn calc-btn-op" onclick="calcInput('+')">+</button>
+      <button class="calc-btn calc-btn-eq" onclick="calcEquals()" title="Calcular resultado (Enter)">=</button>
+
+      <!-- Fila 7: 0, punto decimal -->
+      <button class="calc-btn" style="grid-column: span 2;" onclick="calcInput('0')">0</button>
+      <button class="calc-btn" onclick="calcInput('.')">.</button>
+    </div>
+
+    <!-- Atajos para transferir el resultado directamente al laboratorio -->
+    <div class="calc-lab-actions">
+      <button class="calc-btn-inject" onclick="calcCopiarClipboard()" title="Copiar al portapapeles">📋 Copiar</button>
+      <button class="calc-btn-inject" onclick="calcPegarEn('gramos')" title="Pegar en campo Masa de soluto">🧪 ➔ Masa</button>
+      <button class="calc-btn-inject" onclick="calcPegarEn('moles')" title="Pegar en campo Moles de soluto">⚖️ ➔ Moles</button>
+      <button class="calc-btn-inject" onclick="calcPegarEn('disolvente')" title="Pegar en campo H₂O fija">💧 ➔ H₂O</button>
+      <button class="calc-btn-inject" onclick="calcPegarEn('enrase')" title="Pegar en campo Enrase deseado">🎯 ➔ Enrase</button>
+    </div>
+  </div>
+</div>
+
+
+<!-- ============================================================
+     MODAL DESAFÍO
+============================================================ -->
+<div class="modal-overlay" id="modal-desafio" style="display:none;" onclick="cerrarDesafioOverlay(event)">
+  <div class="modal-box" onclick="event.stopPropagation()">
+    <div class="modal-title">🏆 Modo Desafío</div>
+
+    <!-- Reto actual -->
+    <div style="background:rgba(0,188,212,0.08);border:1px solid var(--accent-cyan);border-radius:8px;padding:14px;margin-bottom:16px;text-align:center;">
+      <div style="font-size:11px;color:var(--text-secondary);margin-bottom:6px;">Objetivo:</div>
+      <div id="desafio-texto" style="font-size:17px;font-weight:800;color:var(--accent-cyan);">—</div>
+    </div>
+
+    <!-- Personalizado -->
+    <div style="margin-bottom:14px;">
+      <label style="font-size:12px;color:var(--text-secondary);display:block;margin-bottom:4px;">
+        ✍️ Reto personalizado (formato: <code style="color:var(--accent-cyan);">250 mL NaCl 0.5 M</code>)
+      </label>
+      <div style="display:flex;gap:6px;">
+        <input type="text" class="lab-input" id="inp-desafio-custom" placeholder="250 mL NaCl 0.5 M" style="flex:1;">
+        <button class="btn btn-purple" style="width:auto;margin-bottom:0;padding:7px 12px;" onclick="cargarRetoCustom()">Cargar</button>
+      </div>
+    </div>
+
+    <!-- Selector retos predefinidos -->
+    <div style="margin-bottom:14px;">
+      <label style="font-size:12px;color:var(--text-secondary);display:block;margin-bottom:4px;">📋 Retos predefinidos:</label>
+      <select class="lab-input" id="sel-reto" onchange="cargarRetoPredefinido()">
+        <option value="">— Selecciona un reto —</option>
+      </select>
+    </div>
+
+    <!-- Resultado verificación -->
+    <div id="res-verificacion" style="min-height:48px;text-align:center;margin-bottom:12px;"></div>
+
+    <div style="display:flex;gap:8px;">
+      <button class="btn btn-green" onclick="verificarDesafio()">✅ Verificar</button>
+      <button class="btn btn-gray" onclick="cerrarDesafio()">✖ Cerrar</button>
+    </div>
+  </div>
+</div>
+
+
+<!-- ============================================================
+     JAVASCRIPT
+============================================================ -->
+
+<script type="module" src="/src/main.ts"></script>
+</body>
+</html>
