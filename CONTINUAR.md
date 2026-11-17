@@ -1,6 +1,6 @@
 # Continuar el desarrollo
 
-Trabaja en esta carpeta. El HTML de la carpeta superior es la versión anterior y no recibe las nuevas mejoras.
+Trabaja en la raíz de este repositorio. El código de la aplicación está en src/.
 
 1. Abre Iniciar_laboratorio.cmd.
 2. Cambia el módulo de la función que quieras mejorar; consulta el mapa de README.md.

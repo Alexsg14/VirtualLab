@@ -55,7 +55,7 @@ Las pruebas de navegador se ejecutan con `npm run test:e2e`. Instala Chromium un
 
 ## Datos existentes y funcionamiento sin conexión
 
-Three.js se instala con el proyecto y se incluye en la compilación: no se descarga desde una CDN al abrir el laboratorio. El HTML anterior sigue intacto en la carpeta superior como copia de referencia.
+Three.js se instala con el proyecto y se incluye en la compilación: no se descarga desde una CDN al abrir el laboratorio.
 
 Las reservas se guardan en el almacenamiento del navegador, asociado a la dirección y al perfil usados. Las reservas del HTML abierto como archivo **no se importan automáticamente** a localhost; tampoco se comparten entre el servidor de desarrollo (5173) y preview (4173). Antes de limpiar datos del navegador, conserva tus preparaciones.
 
@@ -120,4 +120,4 @@ Se permiten incrementos y contracciones: 200 mL de agua con 5.844 g de NaCl dan 
 
 La interfaz avisa al extrapolar fuera de los rangos de los datos. Estos rangos no garantizan solubilidad en todas las combinaciones de temperatura y concentracion: se supone disolucion completa. Glucosa, H2Mal, KMnO4 y AgNO3 conservan el modelo aproximado, identificado en pantalla, sin inventar parametros. Las mezclas de distintos reactivos tambien usan una aproximacion; no se modela su contraccion de reaccion. Los solutos del catalogo son anhidros; no se sustituyen por sales hidratadas.
 
-Los anexos originales no se modifican. La auditoria de extraccion y comparacion se encuentra en `../.tools/density-audit/validation.json`. Las pruebas de densidad, contraccion, enrase, avisos y capacidad estan en `tests/density.test.mjs`.
+Los anexos originales no se modifican. La auditoria de extraccion y comparacion se encuentra en `.tools/density-audit/validation.json`. Las pruebas de densidad, contraccion, enrase, avisos y capacidad estan en `tests/density.test.mjs`.
