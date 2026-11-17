@@ -1,38 +1,83 @@
+<div align="center">
+
 # Virtual Lab
 
-**Laboratorio virtual de química para explorar disoluciones y valoraciones ácido-base desde el navegador.**
+### Química en el navegador: preparar, observar y comprender.
 
-Prepara una disolución, completa hasta el volumen deseado, transfiere alícuotas y observa cómo cambian la concentración, la densidad y el pH. La escena 3D reúne los recipientes, los instrumentos y los resultados de la muestra activa.
+Laboratorio interactivo para estudiar disoluciones y valoraciones ácido-base mediante una escena 3D, instrumentos de dosificación y resultados calculados en tiempo real.
 
-![Vista general del laboratorio: Erlenmeyer con disolución de CuSO₄ y matraz aforado con KMnO₄, en modo noche](docs/images/laboratorio-3d.jpg)
+**Three.js · TypeScript · JavaScript · Vite**
 
-[Empezar](#empezar) · [Disoluciones](#disoluciones-y-volumen-final) · [Ácido-base](#valoraciones-ácido-base) · [Modelo y límites](#modelo-químico-y-límites) · [Desarrollo](#desarrollo)
+[Instalación](#instalación) · [Disoluciones](#disoluciones) · [Valoraciones](#valoraciones-ácido-base) · [Modelo científico](#modelo-científico) · [Desarrollo](#desarrollo)
 
-## Qué puedes hacer
+</div>
 
-| Área | Funciones |
-| --- | --- |
-| Disoluciones | Añadir soluto y agua, enrasar, diluir y consultar distintas formas de concentración. |
-| Material de laboratorio | Vaso de precipitados, matraz aforado, Erlenmeyer y probeta; capacidades ajustables. |
-| Pipeta y bureta | Carga independiente, transferencia de alícuotas, dosis y gotas; llave con caudal regulable. |
-| Ácido-base | Preparar reactivos, medir pH y pOH, aplicar indicadores y registrar curvas de valoración. |
-| Temperatura | Calentar o dejar enfriar y observar su efecto sobre densidad, volumen y pH neutro. |
-| Trabajo y registro | Guardar y recuperar disoluciones en el navegador, deshacer y exportar resultados a TXT o curvas a CSV. |
-| Interfaz | Modos día y noche, cámara 3D, malla opcional, controles de agitación y niveles ESO/Bachillerato. |
+![Escena 3D con un Erlenmeyer y un matraz aforado que contienen disoluciones coloreadas](docs/images/laboratorio-3d.jpg)
 
-También incluye una calculadora y desafíos de preparación. El contador **Adiciones** registra incorporaciones de soluto; no cuenta experimentos completos ni resultados correctos.
+## Un laboratorio para experimentar
 
-## Empezar
+Virtual Lab permite relacionar las operaciones de laboratorio con las magnitudes químicas que las describen: **masa, volumen, concentración, densidad, temperatura y pH**. Está orientado al aprendizaje de química en ESO y Bachillerato.
 
-Necesitas **Node.js 24 LTS**, npm y un navegador con WebGL. La primera instalación de dependencias requiere conexión a internet.
+| Preparar | Manipular | Analizar |
+| :--- | :--- | :--- |
+| Añadir soluto y agua, enrasar y diluir. | Transferir alícuotas con pipeta, regular una bureta y agitar. | Consultar concentración, densidad, pH y curvas de valoración. |
+| Elegir recipiente y capacidad. | Calentar, enfriar y guardar disoluciones. | Exportar resultados a TXT y medidas de valoración a CSV. |
 
-### Windows
+La interfaz ofrece modos día y noche, cámara 3D, malla de referencia opcional, información de los recipientes y la posibilidad de deshacer operaciones.
 
-1. Descarga y descomprime el repositorio, o clónalo.
-2. Abre **`Iniciar_laboratorio.cmd`** con doble clic.
-3. Mantén abierta la terminal mientras utilizas el laboratorio.
+## Disoluciones
 
-### Desde la terminal
+### El volumen de agua no es el volumen de disolución
+
+Para preparar una disolución de concentración conocida hay que controlar el **volumen final**, no solo la cantidad de agua añadida. Al disolver un soluto, las interacciones con el agua pueden producir un aumento o una contracción del volumen.
+
+![Modo día: el panel distingue 200 mL de agua de los 201,8 mL finales de una disolución de NaCl](docs/images/densidad-enrase.jpg)
+
+**Ejemplo: preparar 200 mL de NaCl 0,5 M a 25 °C.**
+
+1. Calcula la cantidad de soluto: `n = C × V = 0,5 × 0,200 = 0,100 mol`.
+2. Pesa **5,844 g de NaCl**.
+3. Disuelve con una cantidad de agua inferior al volumen objetivo.
+4. Completa con agua hasta **200 mL de disolución**.
+
+| Procedimiento | Volumen final | Molaridad |
+| :--- | ---: | ---: |
+| Disolver y enrasar a 200 mL | 200,000 mL | 0,5000 mol/L |
+| Añadir el soluto a 200 mL de agua | ≈ 201,821 mL | ≈ 0,4955 mol/L |
+
+El simulador calcula el agua necesaria para el enrase y actualiza las concentraciones después de cada adición o transferencia. Para los solutos con datos de densidad, el volumen se obtiene de la composición y la temperatura de la muestra.
+
+### Material y operaciones
+
+- **Recipientes:** vaso de precipitados, matraz aforado, Erlenmeyer y probeta, con capacidades ajustables.
+- **Pipeta:** carga independiente, transferencia de alícuotas y dosificación por gotas.
+- **Bureta:** llave de apertura regulable, goteo a bajo caudal y lectura del volumen entregado.
+- **Agua y enrase:** adición directa o mediante grifo, con límite de llenado.
+- **Registro:** historial de operaciones, reservas de disoluciones y exportación de resultados.
+
+## Valoraciones ácido-base
+
+La dosificación con bureta permite seguir la evolución del pH y comparar el registro con una referencia de equilibrio calculada a partir de las condiciones iniciales.
+
+![Valoración de ácido acético con NaOH: bureta, fenolftaleína y curva de pH frente al volumen añadido](docs/images/valoracion-acido-base.jpg)
+
+En esta valoración, **25 mL de ácido acético 0,1 M** reciben **NaOH 0,1 M**. La equivalencia estequiométrica se alcanza a los **25 mL de valorante**, con un pH superior a 7 por tratarse de un ácido débil y una base fuerte.
+
+| Elemento de la gráfica | Interpretación |
+| :--- | :--- |
+| Curva continua | Evolución del pH calculado durante las adiciones. |
+| Línea discontinua | Referencia calculada con la composición inicial. |
+| Banda de color | Intervalo de viraje del indicador. |
+| Marcas verticales | Volúmenes de equivalencia estequiométrica previstos. |
+
+El módulo admite **HCl, NaOH, CH₃COOH, NH₃, H₂SO₄, ácido malónico y NaCl**. Incluye indicadores, lectura de pH y pOH, pausa y reanudación de la dosificación y exportación de la curva a CSV. Los ácidos dipróticos incorporan dos etapas de disociación; sus equivalencias no siempre generan dos saltos de pH separados.
+
+## Instalación
+
+### Requisitos
+
+- **Node.js 24 LTS**, con npm.
+- Un navegador con soporte WebGL.
 
 ```sh
 git clone https://github.com/Alexsg14/VirtualLab.git
@@ -41,91 +86,63 @@ npm ci
 npm run dev
 ```
 
-Abre **http://localhost:5173**. Para detener el servidor, pulsa `Ctrl+C` en su terminal.
+Abre **http://localhost:5173**. En Windows también puedes iniciar el laboratorio con **`Iniciar_laboratorio.cmd`**. Mantén abierta la terminal y pulsa `Ctrl+C` para detener el servidor.
 
-> La aplicación necesita un servidor local: no abras `index.html` directamente con doble clic. Subir el código a GitHub tampoco publica automáticamente una web; GitHub Pages u otro alojamiento requieren configurar el despliegue.
+> [!NOTE]
+> La primera instalación de dependencias requiere conexión a internet. La aplicación se ejecuta mediante un servidor local; no abras `index.html` directamente como archivo.
 
-## Disoluciones y volumen final
+### Compilar para distribuir
 
-**Añadir 200 mL de agua no equivale a preparar 200 mL de disolución.** Para los solutos con parámetros verificados, el laboratorio calcula el volumen a partir de la masa total y de la densidad correspondiente a la composición y la temperatura. El volumen puede aumentar o contraerse al disolver.
+```sh
+npm run build
+npm run preview
+```
 
-![Modo día: 200 mL de agua y 5,844 g de NaCl producen aproximadamente 201,8 mL de disolución, con una molaridad de 0,4955 mol/L](docs/images/densidad-enrase.jpg)
+La web compilada se genera en **`dist/`**. La vista previa está disponible en **http://localhost:4173**. Para desplegarla en un alojamiento estático, publica el contenido de `dist/`.
 
-Ejemplo a **25 °C**, con **5,844 g de NaCl**:
-
-| Preparación | Volumen final | Concentración |
-| --- | --- | --- |
-| Disolver y enrasar a 200 mL | 200,000 mL | 0,5000 mol/L |
-| Añadir el soluto a 200 mL de agua | ≈ 201,821 mL | ≈ 0,4955 mol/L |
-
-En el primer caso se requieren aproximadamente **197,593 g de agua**. El control de enrase resuelve numéricamente cuánto añadir para alcanzar el volumen final solicitado.
-
-Las transferencias conservan masas y moles y recalculan el volumen del destino. Los desafíos comprueban el **volumen final de disolución** y la concentración, con márgenes de **±0,05 mL** y **±0,2 %**, respectivamente.
-
-## Valoraciones ácido-base
-
-El módulo ácido-base permite trabajar con HCl, NaOH, ácido acético, amoniaco, ácido sulfúrico, ácido malónico y NaCl. Puedes incorporar reactivo puro equivalente o una disolución de concentración conocida, añadir agua y elegir un indicador.
-
-![Valoración de ácido acético con NaOH: bureta montada, viraje de la fenolftaleína y curva con equivalencia prevista a 25 mL](docs/images/valoracion-acido-base.jpg)
-
-La captura muestra una valoración de **25 mL de ácido acético 0,1 M con NaOH 0,1 M**, tras añadir 27 mL de valorante. El registro procede de las adiciones del propio simulador.
-
-- La curva continua recoge el pH calculado durante la dosificación.
-- La línea discontinua muestra la referencia calculada a partir de las condiciones iniciales.
-- La banda señala el intervalo de viraje del indicador y las marcas verticales, las equivalencias estequiométricas previstas.
-- Puedes pausar y reanudar la bureta, mostrar pOH y exportar las medidas en CSV.
-
-Los ácidos dipróticos se modelan con dos etapas de disociación; sus equivalencias no siempre producen dos saltos de pH claramente separados.
-
-## Modelo químico y límites
-
-El laboratorio es una herramienta didáctica. Sus resultados dependen de las hipótesis y del rango de datos de cada modelo.
+## Modelo científico
 
 ### Densidad y volumen
 
-Se emplea la correlación de **Laliberté (2009)** con parámetros contrastados con los anexos originales aportados al proyecto para estos diez solutos:
+El cálculo conserva las masas de agua y soluto y aplica la relación:
+
+**V(T, w) = masa total / ρ(T, w)**
+
+La correlación de **Laliberté (2009)** permite calcular la densidad en función de la temperatura `T` y de la fracción másica de soluto `w`. Se han incorporado parámetros verificados para:
 
 **NaCl · NaOH · HCl · H₂SO₄ · NH₃ · CH₃COOH · CuSO₄ · CoCl₂ · KI · NaHCO₃**
 
-El cálculo conserva masa y utiliza `volumen = masa total / densidad`. La interfaz identifica el modelo aplicado y avisa cuando se extrapola fuera del rango de los datos.
+La interfaz identifica el modelo utilizado y muestra avisos al extrapolar fuera del rango de los datos. Los parámetros corresponden a las formas anhidras del catálogo.
 
-- Glucosa, ácido malónico, KMnO₄ y AgNO₃ mantienen una aproximación de volumen, indicada en pantalla.
-- Las mezclas de distintos reactivos también usan un volumen aproximado; no se calcula su contracción de reacción.
-- Los solutos del catálogo corresponden a las formas anhidras actuales.
-- Se supone disolución completa. El indicador de saturación no simula todavía sólido sin disolver, precipitación ni cristalización.
+### Alcance y aproximaciones
 
-Referencia: [Laliberté, 2009 — DOI 10.1021/je8008123](https://doi.org/10.1021/je8008123). Parámetros en [`src/data/density.ts`](src/data/density.ts), ecuaciones en [`src/core/density.ts`](src/core/density.ts) y auditoría en [`.tools/density-audit/validation.json`](.tools/density-audit/validation.json). Los Excel originales no son necesarios para ejecutar la aplicación.
+| Área | Alcance actual |
+| :--- | :--- |
+| Solutos sin parámetros de densidad | Glucosa, ácido malónico, KMnO₄ y AgNO₃ utilizan un volumen aproximado, identificado en pantalla. |
+| Mezclas de reactivos | El volumen es aproximado; no se calcula la contracción de reacción. |
+| Solubilidad | Se supone disolución completa. No se simulan sólido sin disolver, precipitación ni cristalización. |
+| Temperatura | Modifica la densidad y el volumen. No incluye evaporación, dilatación del recipiente ni calor de disolución o neutralización. |
+| Equilibrio ácido-base | Modelo ideal, sin correcciones de actividad ni cinética de reacción. Constantes de equilibrios débiles de referencia a 25 °C; el producto iónico del agua varía con la temperatura. |
+| Representación del líquido | Superficie libre con ondas y amortiguación; no es un modelo volumétrico SPH/PBF. |
 
-### Temperatura, equilibrio y aspecto del líquido
-
-Al cambiar la temperatura se recalculan densidad y volumen. No se incluyen evaporación, dilatación del recipiente ni calor de disolución o neutralización: añadir NaOH sólido no calienta automáticamente la muestra.
-
-El pH utiliza un modelo ideal de equilibrio, sin correcciones de actividad; las constantes de los equilibrios débiles se aproximan con valores de referencia a 25 °C y el producto iónico del agua varía con la temperatura. No se simulan velocidades de reacción.
-
-La animación del líquido es un modelo visual de superficie libre, con ondas y amortiguación. No es una simulación volumétrica de fluidos con partículas SPH/PBF.
-
-## Guardado de disoluciones
-
-Las reservas se guardan en el almacenamiento local del navegador. Están asociadas a su perfil y a la dirección de la aplicación: **no se sincronizan mediante GitHub** ni entre dispositivos. Desarrollo (`localhost:5173`) y vista previa (`localhost:4173`) tienen almacenamientos separados. Limpiar los datos del navegador puede eliminar las reservas.
-
-Three.js se instala con las dependencias y se incorpora a la compilación; no se descarga desde una CDN al abrir la página.
+**Referencia:** [Laliberté, 2009 · DOI 10.1021/je8008123](https://doi.org/10.1021/je8008123). Consulta los [parámetros de densidad](src/data/density.ts), las [ecuaciones](src/core/density.ts) y la [auditoría numérica](.tools/density-audit/validation.json).
 
 ## Desarrollo
 
-El proyecto utiliza **TypeScript, JavaScript, Three.js y Vite**. Todos los comandos se ejecutan desde la raíz del repositorio.
+### Estructura del proyecto
 
-| Qué revisar | Dónde |
-| --- | --- |
-| Interfaz y estilos | `index.html`, `src/styles/`, `src/ui/` |
-| Volumen, concentración y transferencias | `src/core/solution.ts` |
-| Equilibrio ácido-base y valoraciones | `src/core/acid-base.ts`, `src/core/titration.ts` |
-| Datos de sustancias y densidad | `src/data/` |
-| Pipeta, bureta, grifo y temperatura | `src/instruments/` |
-| Escena, cristalería y líquido | `src/scene/` |
-| Estado y reservas | `src/state/`, `src/storage/` |
-| Pruebas | `tests/` |
+| Ruta | Responsabilidad |
+| :--- | :--- |
+| `src/core/` | Volumen, concentración y equilibrio químico. |
+| `src/data/` | Catálogo de sustancias y parámetros de densidad. |
+| `src/app/`, `src/state/`, `src/storage/` | Operaciones, estado de la sesión y reservas. |
+| `src/instruments/` | Pipeta, bureta, grifo y control de temperatura. |
+| `src/scene/` | Escena 3D, cristalería y representación del líquido. |
+| `src/ui/`, `src/styles/`, `index.html` | Interfaz y presentación de resultados. |
+| `src/education/` | Desafíos y herramientas educativas. |
+| `tests/`, `scripts/` | Verificación y compilación. |
 
-### Comprobaciones
+### Verificación
 
 ```sh
 npm test
@@ -133,7 +150,7 @@ npm run typecheck
 npm run build
 ```
 
-Para las pruebas de navegador, instala Chromium una vez:
+Para ejecutar las pruebas de navegador:
 
 ```sh
 npx playwright install chromium
@@ -143,15 +160,8 @@ npm run test:titration
 npm run test:instruments
 ```
 
-En PowerShell puedes usar Edge instalado mediante `$env:PLAYWRIGHT_CHANNEL='msedge'`. Cada prueba de navegador inicia y detiene su propio servidor local.
+También se puede utilizar Edge instalado. En PowerShell, establece `$env:PLAYWRIGHT_CHANNEL='msedge'` antes de ejecutar las pruebas. Cada prueba inicia y detiene su propio servidor local.
 
-### Compilación para distribuir
+### Persistencia
 
-```sh
-npm run build
-npm run preview
-```
-
-La compilación se genera en **`dist/`** y la vista previa se abre en **http://localhost:4173**. Para alojar la aplicación, publica el contenido generado de `dist/`. No necesitas publicar `node_modules/`; `.gitignore` excluye tanto las dependencias como los archivos de compilación.
-
-Las capturas de este README están en [`docs/images/`](docs/images/) y proceden de la aplicación real.
+Las disoluciones guardadas se almacenan en el navegador, asociadas al perfil y a la dirección de la aplicación. No se sincronizan entre dispositivos ni mediante GitHub. Desarrollo (`localhost:5173`) y vista previa (`localhost:4173`) utilizan almacenamientos separados.
