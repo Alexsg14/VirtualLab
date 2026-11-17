@@ -1,3 +1,4 @@
+import {crearGrifo3D} from './faucet.js';
 import {crearLiquidoContenido} from './contained-liquid.js';
 import {radioMatraz,FONDO_MATRAZ,CUELLO_MATRAZ,BOCA_MATRAZ,AFORO_MATRAZ,RADIO_CUELLO} from './flask-profile.js';
 import {actualizarInstrumento3D,instrumento3D,accionarInstrumento} from './instruments.js';
@@ -305,6 +306,12 @@ export function calcularAlturaCasqueteEsferico(V, R) {
 
 export function actualizarEscena3D() {
   if (!scene3D) return;
+  const grifoVisible=grifo.timer!==null;
+  if(grifoVisible&&!scene3D.userData.grifoEncuadrado){
+    camSpherical.radius=Math.max(camSpherical.radius,11.5);
+    camTarget.set(0,1.9,0);actualizarPosicionCamara();
+  }
+  scene3D.userData.grifoEncuadrado=grifoVisible;
 
   for(const old of [groupVessel1,groupVessel2]) if(old) {
     scene3D.remove(old);
@@ -712,8 +719,7 @@ export function crearGrupoRecipiente3D(rec, posX, esActivo, nombreEtiqueta = rec
       const radius=0.012+Math.sqrt(flow/50)*0.035;
       const jet=new THREE.Mesh(new THREE.CylinderGeometry(radius*0.7,radius,outlet-surface,16),jetMaterial);
       jet.position.y=(outlet+surface)/2;jet.renderOrder=1;group.add(jet);
-      const tap=new THREE.Mesh(new THREE.CylinderGeometry(0.07,0.07,0.65,16),new THREE.MeshStandardMaterial({color:0x9eafbd,metalness:0.85,roughness:0.22}));
-      tap.rotation.z=Math.PI/2;tap.position.set(-0.27,outlet+0.04,0);group.add(tap);
+      group.add(crearGrifo3D(outlet,flow));
     }
   }
   return { group, liquidContainer };
