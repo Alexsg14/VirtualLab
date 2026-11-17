@@ -40,5 +40,7 @@ export function crearGrifo3D(salidaY,caudal){
  // The threaded fixing passes through the bench beneath the flange.
  add(new THREE.CylinderGeometry(.064,.064,.32,24),brass,columnX,-.16,0,'rosca-fijacion-grifo');
  for(let i=0;i<6;i++){const thread=add(new THREE.TorusGeometry(.067,.005,5,24),brass,columnX,-.035-i*.045,0,'filete-rosca-grifo');thread.rotation.x=Math.PI/2;}
+ // Mirror the fixture around its outlet; the jet remains centered on the vessel.
+ group.scale.x=-1;
  return group;
 }
