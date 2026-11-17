@@ -493,20 +493,21 @@
     <!-- Reto actual -->
     <div style="background:rgba(0,188,212,0.08);border:1px solid var(--accent-cyan);border-radius:8px;padding:14px;margin-bottom:16px;text-align:center;">
       <div style="font-size:11px;color:var(--text-secondary);margin-bottom:6px;">Objetivo:</div>
-      <div id="desafio-texto" style="font-size:17px;font-weight:800;color:var(--accent-cyan);">—</div>
+      <div id="desafio-texto" style="font-size:17px;font-weight:800;color:var(--accent-cyan);">—</div><p id="desafio-unidad-ayuda" style="font-size:12px;color:var(--text-secondary);margin:8px 0 0;"></p>
     </div>
 
     <!-- Personalizado -->
     <div style="margin-bottom:14px;">
       <label style="font-size:12px;color:var(--text-secondary);display:block;margin-bottom:4px;">
-        ✍️ Reto personalizado (formato: <code style="color:var(--accent-cyan);">250 mL NaCl 0.5 M</code>)
+        ✍️ Reto personalizado (formato: <code style="color:var(--accent-cyan);">250 mL NaCl 10 g/L</code>)
       </label>
       <div style="display:flex;gap:6px;">
-        <input type="text" class="lab-input" id="inp-desafio-custom" placeholder="250 mL NaCl 0.5 M" style="flex:1;">
+        <input type="text" class="lab-input" id="inp-desafio-custom" placeholder="250 mL NaCl 10 g/L" style="flex:1;">
         <button class="btn btn-purple" style="width:auto;margin-bottom:0;padding:7px 12px;" onclick="cargarRetoCustom()">Cargar</button>
       </div>
     </div>
 
+    <p style="font-size:11px;color:var(--text-secondary);">Unidades: mol/L (M), g/L, % m/m, ppm (mg/kg de disolución) y mol/kg (m). Ejemplos: 200 mL NaCl 2 % m/m; 500 mL NaCl 1000 ppm. Se admiten decimales con coma o punto.</p>
     <!-- Selector retos predefinidos -->
     <div style="margin-bottom:14px;">
       <label style="font-size:12px;color:var(--text-secondary);display:block;margin-bottom:4px;">📋 Retos predefinidos:</label>

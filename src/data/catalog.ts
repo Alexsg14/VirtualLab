@@ -21,15 +21,18 @@ export const SOLUTOS = [
 // ============================================================
 
 export const RETOS_PREDEFINIDOS = [
-  { texto:'Prepara 250 mL de NaCl a 0.5 mol/L',    soluto:'NaCl',    volMl:250,  molL:0.5  },
-  { texto:'Prepara 100 mL de CuSO₄ a 0.1 mol/L',   soluto:'CuSO4',   volMl:100,  molL:0.1  },
-  { texto:'Prepara 500 mL de NaOH a 0.2 mol/L',    soluto:'NaOH',    volMl:500,  molL:0.2  },
-  { texto:'Prepara 200 mL de KMnO₄ a 0.05 mol/L',  soluto:'KMnO4',   volMl:200,  molL:0.05 },
-  { texto:'Prepara 1000 mL de glucosa a 0.3 mol/L', soluto:'glucosa', volMl:1000, molL:0.3  },
-  { texto:'Prepara 150 mL de KI a 1.0 mol/L',       soluto:'KI',      volMl:150,  molL:1.0  },
-  { texto:'Prepara 300 mL de NaHCO₃ a 0.25 mol/L', soluto:'NaHCO3',  volMl:300,  molL:0.25 },
-  { texto:'Prepara 50 mL de AgNO₃ a 0.5 mol/L',    soluto:'AgNO3',   volMl:50,   molL:0.5  }
-];
+  {soluto:'NaCl',volMl:250,concentracion:0.5,unidad:'mol/L'},
+  {soluto:'CuSO4',volMl:100,concentracion:0.1,unidad:'mol/L'},
+  {soluto:'NaCl',volMl:250,concentracion:10,unidad:'g/L'},
+  {soluto:'CuSO4',volMl:100,concentracion:16,unidad:'g/L'},
+  {soluto:'NaHCO3',volMl:300,concentracion:8,unidad:'g/L'},
+  {soluto:'glucosa',volMl:250,concentracion:5,unidad:'% m/m'},
+  {soluto:'NaCl',volMl:200,concentracion:2,unidad:'% m/m'},
+  {soluto:'NaCl',volMl:500,concentracion:1000,unidad:'ppm'},
+  {soluto:'KI',volMl:250,concentracion:500,unidad:'ppm'},
+  {soluto:'NaCl',volMl:200,concentracion:0.5,unidad:'mol/kg'},
+  {soluto:'glucosa',volMl:250,concentracion:0.25,unidad:'mol/kg'}
+].map(r=>({...r,texto:`Prepara ${r.volMl} mL de ${formulaSoluto(r.soluto)} a ${r.concentracion} ${r.unidad}`}));
 
 // ============================================================
 // CAPACIDADES POR DEFECTO DE RECIPIENTES (mL)

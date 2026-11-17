@@ -47,6 +47,8 @@ Para preparar una disolución de concentración conocida hay que controlar el **
 
 El simulador calcula el agua necesaria para el enrase y actualiza las concentraciones después de cada adición o transferencia. Para los solutos con datos de densidad, el volumen se obtiene de la composición y la temperatura de la muestra.
 
+Los desafíos de preparación incluyen mol/L, g/L, % m/m, ppm y mol/kg de agua. Cada reto comprueba la concentración en la unidad solicitada y el volumen final de disolución de forma independiente.
+
 ### Material y operaciones
 
 - **Recipientes:** vaso de precipitados, matraz aforado, Erlenmeyer y probeta, con capacidades ajustables.

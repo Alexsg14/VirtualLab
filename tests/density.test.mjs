@@ -1,4 +1,4 @@
-import {evaluarPreparacion} from '../src/core/challenge.ts';
+import {evaluarPreparacion,parsearReto} from '../src/core/challenge.ts';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {crearDisolucion,actualizarVolumen,aguaParaEnrasar,agregarAgua,transferirAlicuota,maximoTransferible} from '../src/core/solution.ts';
@@ -38,4 +38,26 @@ test('desafio NaOH: una contraccion tambien invalida el volumen final incorrecto
  r.volH2OMl=250;actualizarVolumen(r);
  const resultado=evaluarPreparacion(r,reto);
  assert.ok(resultado.volumenMl<250);assert.equal(resultado.molaridadOk,true);assert.equal(resultado.volumenOk,false);assert.equal(resultado.correcto,false);
+});
+test('retos: g/L, porcentaje y molalidad usan denominadores distintos',()=>{
+ const r=crearDisolucion('NaCl',.1,100);r.masaG=2.922;r.molesN=.05;r.volH2OMl=100/RHO_AGUA_25;actualizarVolumen(r);
+ const casos=[['mol/kg',.5],['% m/m',2.922/102.922*100],['ppm',2.922/102.922*1e6],['g/L',2.922/(r.volMl/1000)],['mol/L',.05/(r.volMl/1000)]];
+ for(const [unidad,concentracion] of casos){
+  const reto={soluto:'NaCl',volMl:r.volMl,unidad,concentracion};assert.equal(evaluarPreparacion(r,reto).correcto,true,unidad);
+  assert.equal(evaluarPreparacion(r,{...reto,concentracion:concentracion*1.01}).correcto,false,unidad);
+  assert.equal(evaluarPreparacion(r,{...reto,volMl:r.volMl+1}).correcto,false,unidad);
+ }
+ assert.equal(evaluarPreparacion(r,{soluto:'NaCl',volMl:r.volMl,unidad:'mol/kg',concentracion:.05/.102922}).correcto,false,'molalidad no usa masa total');
+});
+test('ppm son mg/kg de disolucion, no mg/L',()=>{
+ const r=crearDisolucion('NaCl',.1,100);r.masaG=1;r.molesN=1/58.44;r.volH2OMl=999/RHO_AGUA_25;actualizarVolumen(r);
+ const reto={soluto:'NaCl',volMl:r.volMl,unidad:'ppm',concentracion:1000};assert.equal(evaluarPreparacion(r,reto).correcto,true);
+ near(evaluarPreparacion(r,reto).concentracion,1000);
+ assert.ok(Math.abs(1000/(r.volMl/1000)-1000)>2);
+});
+test('retos personalizados: unidades completas, alias y decimales con coma',()=>{
+ for(const [texto,unidad,valor]of [['250 mL NaCl 0,5 M','mol/L',.5],['250 mL NaCl 10 g/L','g/L',10],['200 mL NaCl 2 % m/m','% m/m',2],['500 mL NaCl 1000 ppm','ppm',1000],['200 mL NaCl 0.5 m','mol/kg',.5],['200 mL NaCl 0.5 mol/kg','mol/kg',.5]]){
+  const r=parsearReto(texto);assert.equal(r.unidad,unidad);assert.equal(r.concentracion,valor);
+ }
+ for(const texto of ['250 mL NaCl 10 mg/L','250 mL NaCl 0 M','0 mL NaCl 1 M','250 mL NaCl 100 % m/m','250 mL NaCl 1 M basura','250 mL X 1 M'])assert.throws(()=>parsearReto(texto));
 });

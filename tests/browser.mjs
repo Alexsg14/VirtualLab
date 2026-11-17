@@ -50,6 +50,21 @@ try {
  });
  for(const r of checks){assert.equal(r.aceptada,r.enrasada);if(!r.enrasada)assert.match(r.pista,/volumen final/i);}
  }
- assert.deepEqual(errors,[],'Sin errores de JavaScript');assert.deepEqual(external,[],'Sin peticiones a CDNs');
+  if(!built){
+  const units=await page.locator('#sel-reto').innerText();for(const unit of ['mol/L','g/L','% m/m','ppm','mol/kg'])assert.ok(units.includes(unit));
+  const verified=await page.evaluate(async()=>{
+   const {labState}=await import('/src/state/laboratory.js'),c=await import('/src/core/solution.ts'),{RHO_AGUA_25}=await import('/src/core/density.ts');
+   const base=c.crearDisolucion('NaCl',.1,100);base.masaG=2.922;base.molesN=.05;base.volH2OMl=100/RHO_AGUA_25;c.actualizarVolumen(base);
+   const values=c.calcularConcentraciones(base),results=[];
+   for(const [unit,key]of [['g/L','masica'],['% m/m','pMasa'],['ppm','ppm'],['mol/kg','molalidad']]){
+    Object.assign(labState.r1,structuredClone(base));labState.r1.componentes=undefined;window.seleccionarMesa(1);
+    document.getElementById('inp-desafio-custom').value=`${base.volMl.toFixed(3)} mL NaCl ${values[key].toFixed(8)} ${unit}`;
+    window.cargarRetoCustom();const loaded=labState.desafioActivo?.unidad;
+    window.verificarDesafio();results.push({unit,loaded,accepted:labState.desafioActivo===null,text:document.getElementById('res-verificacion').textContent,help:document.getElementById('desafio-unidad-ayuda').textContent});
+   }return results;
+  });
+  for(const r of verified){assert.equal(r.loaded,r.unit);assert.equal(r.accepted,true);assert.ok(r.text.includes(r.unit));assert.ok(r.help.length>0);assert.ok(!r.text.includes('NaN'));}
+ }
+assert.deepEqual(errors,[],'Sin errores de JavaScript');assert.deepEqual(external,[],'Sin peticiones a CDNs');
  console.log('OK '+(built?'producción':'desarrollo')+': WebGL, menús, enrase, concentración, pipeta, vertido, reserva, grifo, cámara y móvil.');
 } finally {if(browser)await browser.close();server.kill();}
