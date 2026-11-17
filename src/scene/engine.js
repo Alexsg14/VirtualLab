@@ -461,17 +461,21 @@ export function crearGrupoRecipiente3D(rec, posX, esActivo, nombreEtiqueta = rec
         const lip=Math.exp(-Math.pow(delta/0.23,2))*blend;
         return {x:x*(1+0.33*lip),z:z*(1+0.33*lip),raise:0.09*lip};
       };
-      const wall=new THREE.CylinderGeometry(radio,radio*0.96,altura,96,16,true);
+      // A thick, closed base sits above the bench. The former flat disc at
+      // y=0 was coplanar with the table and exposed a radial z-fighting pattern.
+      const profile=[
+        [0,.025],[.72,.025],[.78,.035],[.805,.07],[.817,.13],
+        [radio,altura],[radio-.025,altura],[.792,.14],[.78,.105],[.72,.095],[0,.095]
+      ].map(([r,y])=>new THREE.Vector2(r,y));
+      const wall=new THREE.LatheGeometry(profile,96);
       const positions=wall.attributes.position;
-      for(let i=0;i<positions.count;i++) {
-        const y=positions.getY(i),blend=Math.pow(Math.max(0,(y+altura/2)/altura),10);
+      for(let i=0;i<positions.count;i++){
+        const y=positions.getY(i),blend=Math.pow(Math.max(0,y/altura),10);
         const p=deformLip(positions.getX(i),positions.getZ(i),blend);
         positions.setXYZ(i,p.x,y+p.raise,p.z);
       }
       wall.computeVertexNormals();
-      const glassCyl=new THREE.Mesh(wall,glassMat);glassCyl.position.y=altura/2;glassCyl.renderOrder=2;group.add(glassCyl);
-      const baseDisc=new THREE.Mesh(new THREE.CircleGeometry(radio*0.96,64),glassMat);
-      baseDisc.rotation.x=-Math.PI/2;group.add(baseDisc);
+      const glassCyl=new THREE.Mesh(wall,glassMat);glassCyl.name='cristal-vaso';glassCyl.renderOrder=2;group.add(glassCyl);
       const rimPoints=[];
       for(let i=0;i<160;i++) {
         const angle=i/160*Math.PI*2;
@@ -482,25 +486,31 @@ export function crearGrupoRecipiente3D(rec, posX, esActivo, nombreEtiqueta = rec
       const rim=new THREE.Mesh(new THREE.TubeGeometry(rimCurve,160,0.025,8,true),glassMat);
       rim.renderOrder=2;group.add(rim);
 
-      [0.25, 0.5, 0.75, 1.0].forEach(m => {
-        const tickRing = new THREE.Mesh(new THREE.TorusGeometry(radio * 0.98, 0.015, 8, 32), m === 1.0 ? markMat : scaleTickMat);
-        tickRing.rotation.x = Math.PI / 2;
-        tickRing.position.y = hNominal * m;
-        group.add(tickRing);
-      });
-
-      if (pctLleno > 0.005) {
-        const hLiq = hNominal * pctLleno;
-        const pts = [
-          new THREE.Vector2(0, 0.03),
-          new THREE.Vector2(radio * 0.95, 0.03),
-          new THREE.Vector2(radio * 0.95, 0.03 + hLiq),
-          new THREE.Vector2(0, 0.03 + hLiq)
-        ];
-        const liqMesh = new THREE.Mesh(new THREE.LatheGeometry(pts, 32), liquidMat);
-        liquidContainer.add(liqMesh);
+      const bottom=.105,radiusAt=y=>.78+.04*(y-bottom)/(altura-bottom);
+      const volumeAt=y=>{const r=radiusAt(y);return Math.PI*(y-bottom)*(.78*.78+.78*r+r*r)/3;};
+      const heightForFraction=fraction=>{
+        const target=volumeAt(hNominal)*fraction;let lo=bottom,hi=altura-.03;
+        for(let i=0;i<32;i++){const mid=(lo+hi)/2;if(volumeAt(mid)<target)lo=mid;else hi=mid;}
+        return (lo+hi)/2;
+      };
+      // Printed graduations use the same volume-to-height map as the liquid.
+      const print=document.createElement('canvas');print.width=256;print.height=768;
+      const ink=print.getContext('2d');ink.strokeStyle=dia?'#365569':'#c7d5df';ink.fillStyle=ink.strokeStyle;ink.lineWidth=3;ink.font='32px sans-serif';
+      const magnitude=10**Math.floor(Math.log10(cap/5));
+      const step=[1,2,5,10].find(x=>x*magnitude>=cap/6)*magnitude;
+      for(let v=step;v<=cap+1e-8;v+=step){
+        const y=Math.max(2,(1-heightForFraction(v/cap)/hNominal)*768);ink.beginPath();ink.moveTo(12,y);ink.lineTo(82,y);ink.stroke();ink.fillText(String(Number(v.toPrecision(5))),100,y+11);
+        const half=(1-heightForFraction((v-step/2)/cap)/hNominal)*768;if(half<748){ink.beginPath();ink.moveTo(12,half);ink.lineTo(49,half);ink.stroke();}
       }
-      break;
+      ink.font='27px sans-serif';ink.fillText('mL',184,750);
+      const ticks=new THREE.Mesh(new THREE.CylinderGeometry(radio+.003,.817+.003,hNominal,48,1,true,-.36,1.05),new THREE.MeshBasicMaterial({map:new THREE.CanvasTexture(print),transparent:true,opacity:.85,depthWrite:false,side:THREE.FrontSide}));
+      ticks.position.y=hNominal/2;ticks.renderOrder=3;ticks.name='graduaciones-vaso';group.add(ticks);
+
+      if(pctLleno>0){
+        const top=heightForFraction(pctLleno);
+        const pts=[new THREE.Vector2(0,bottom),new THREE.Vector2(radiusAt(bottom),bottom),new THREE.Vector2(radiusAt(top),top),new THREE.Vector2(0,top)];
+        const liqMesh=new THREE.Mesh(new THREE.LatheGeometry(pts,96),liquidMat);liquidContainer.add(liqMesh);
+      }      break;
     }
 
     case 'erlenmeyer': {
