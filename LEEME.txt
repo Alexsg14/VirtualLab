@@ -1,0 +1,9 @@
+﻿Virtual Lab - version 2026-11-17
+
+El proyecto actual esta en laboratorio/. Incluye codigo fuente, pruebas y compilacion dist/.
+Para ejecutar: instalar Node.js 24 LTS y abrir laboratorio/Iniciar_laboratorio.cmd.
+Alternativa: dentro de laboratorio, npm ci y npm run dev.
+Para GitHub: descomprimir y subir el contenido; no subir node_modules. Se incluye .gitignore.
+La carpeta dist contiene la web compilada; necesita servirse por HTTP, no abrir index.html con doble clic.
+GitHub Pages requiere configurar el despliegue; este ZIP no publica automaticamente.
+La auditoria de los datos de densidad se incluye en .tools/density-audit/. Los Excel originales no son necesarios para ejecutar la web.
