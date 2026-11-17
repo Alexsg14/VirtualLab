@@ -1,123 +1,157 @@
 # Virtual Lab
 
-Laboratorio de disoluciones organizado para seguir desarrollándolo. Conserva el diseño y las funciones del HTML anterior. La aplicación funciona en el navegador; todavía no es un ejecutable de Windows.
+**Laboratorio virtual de química para explorar disoluciones y valoraciones ácido-base desde el navegador.**
 
-## Arrancar en Windows
+Prepara una disolución, completa hasta el volumen deseado, transfiere alícuotas y observa cómo cambian la concentración, la densidad y el pH. La escena 3D reúne los recipientes, los instrumentos y los resultados de la muestra activa.
 
-1. Instala **Node.js 24 LTS** (incluye npm).
-2. Abre **Iniciar_laboratorio.cmd** con doble clic.
-3. La primera ejecución instala las dependencias y necesita internet. Las siguientes utilizan las dependencias locales.
-4. Mantén abierta la terminal mientras trabajas. Ciérrala o pulsa Ctrl+C para detener el servidor.
+![Vista general del laboratorio: Erlenmeyer con disolución de CuSO₄ y matraz aforado con KMnO₄, en modo noche](docs/images/laboratorio-3d.jpg)
 
-También puedes usar la terminal:
+[Empezar](#empezar) · [Disoluciones](#disoluciones-y-volumen-final) · [Ácido-base](#valoraciones-ácido-base) · [Modelo y límites](#modelo-químico-y-límites) · [Desarrollo](#desarrollo)
+
+## Qué puedes hacer
+
+| Área | Funciones |
+| --- | --- |
+| Disoluciones | Añadir soluto y agua, enrasar, diluir y consultar distintas formas de concentración. |
+| Material de laboratorio | Vaso de precipitados, matraz aforado, Erlenmeyer y probeta; capacidades ajustables. |
+| Pipeta y bureta | Carga independiente, transferencia de alícuotas, dosis y gotas; llave con caudal regulable. |
+| Ácido-base | Preparar reactivos, medir pH y pOH, aplicar indicadores y registrar curvas de valoración. |
+| Temperatura | Calentar o dejar enfriar y observar su efecto sobre densidad, volumen y pH neutro. |
+| Trabajo y registro | Guardar y recuperar disoluciones en el navegador, deshacer y exportar resultados a TXT o curvas a CSV. |
+| Interfaz | Modos día y noche, cámara 3D, malla opcional, controles de agitación y niveles ESO/Bachillerato. |
+
+También incluye una calculadora y desafíos de preparación. El contador **Adiciones** registra incorporaciones de soluto; no cuenta experimentos completos ni resultados correctos.
+
+## Empezar
+
+Necesitas **Node.js 24 LTS**, npm y un navegador con WebGL. La primera instalación de dependencias requiere conexión a internet.
+
+### Windows
+
+1. Descarga y descomprime el repositorio, o clónalo.
+2. Abre **`Iniciar_laboratorio.cmd`** con doble clic.
+3. Mantén abierta la terminal mientras utilizas el laboratorio.
+
+### Desde la terminal
 
 ```sh
+git clone https://github.com/Alexsg14/VirtualLab.git
+cd VirtualLab
 npm ci
 npm run dev
 ```
 
-Abre http://localhost:5173. Vite actualiza la página al guardar cambios. El servidor solo escucha en este equipo.
+Abre **http://localhost:5173**. Para detener el servidor, pulsa `Ctrl+C` en su terminal.
 
-## Seguir mejorándolo
+> La aplicación necesita un servidor local: no abras `index.html` directamente con doble clic. Subir el código a GitHub tampoco publica automáticamente una web; GitHub Pages u otro alojamiento requieren configurar el despliegue.
 
-| Qué cambiar | Dónde |
+## Disoluciones y volumen final
+
+**Añadir 200 mL de agua no equivale a preparar 200 mL de disolución.** Para los solutos con parámetros verificados, el laboratorio calcula el volumen a partir de la masa total y de la densidad correspondiente a la composición y la temperatura. El volumen puede aumentar o contraerse al disolver.
+
+![Modo día: 200 mL de agua y 5,844 g de NaCl producen aproximadamente 201,8 mL de disolución, con una molaridad de 0,4955 mol/L](docs/images/densidad-enrase.jpg)
+
+Ejemplo a **25 °C**, con **5,844 g de NaCl**:
+
+| Preparación | Volumen final | Concentración |
+| --- | --- | --- |
+| Disolver y enrasar a 200 mL | 200,000 mL | 0,5000 mol/L |
+| Añadir el soluto a 200 mL de agua | ≈ 201,821 mL | ≈ 0,4955 mol/L |
+
+En el primer caso se requieren aproximadamente **197,593 g de agua**. El control de enrase resuelve numéricamente cuánto añadir para alcanzar el volumen final solicitado.
+
+Las transferencias conservan masas y moles y recalculan el volumen del destino. Los desafíos comprueban el **volumen final de disolución** y la concentración, con márgenes de **±0,05 mL** y **±0,2 %**, respectivamente.
+
+## Valoraciones ácido-base
+
+El módulo ácido-base permite trabajar con HCl, NaOH, ácido acético, amoniaco, ácido sulfúrico, ácido malónico y NaCl. Puedes incorporar reactivo puro equivalente o una disolución de concentración conocida, añadir agua y elegir un indicador.
+
+![Valoración de ácido acético con NaOH: bureta montada, viraje de la fenolftaleína y curva con equivalencia prevista a 25 mL](docs/images/valoracion-acido-base.jpg)
+
+La captura muestra una valoración de **25 mL de ácido acético 0,1 M con NaOH 0,1 M**, tras añadir 27 mL de valorante. El registro procede de las adiciones del propio simulador.
+
+- La curva continua recoge el pH calculado durante la dosificación.
+- La línea discontinua muestra la referencia calculada a partir de las condiciones iniciales.
+- La banda señala el intervalo de viraje del indicador y las marcas verticales, las equivalencias estequiométricas previstas.
+- Puedes pausar y reanudar la bureta, mostrar pOH y exportar las medidas en CSV.
+
+Los ácidos dipróticos se modelan con dos etapas de disociación; sus equivalencias no siempre producen dos saltos de pH claramente separados.
+
+## Modelo químico y límites
+
+El laboratorio es una herramienta didáctica. Sus resultados dependen de las hipótesis y del rango de datos de cada modelo.
+
+### Densidad y volumen
+
+Se emplea la correlación de **Laliberté (2009)** con parámetros contrastados con los anexos originales aportados al proyecto para estos diez solutos:
+
+**NaCl · NaOH · HCl · H₂SO₄ · NH₃ · CH₃COOH · CuSO₄ · CoCl₂ · KI · NaHCO₃**
+
+El cálculo conserva masa y utiliza `volumen = masa total / densidad`. La interfaz identifica el modelo aplicado y avisa cuando se extrapola fuera del rango de los datos.
+
+- Glucosa, ácido malónico, KMnO₄ y AgNO₃ mantienen una aproximación de volumen, indicada en pantalla.
+- Las mezclas de distintos reactivos también usan un volumen aproximado; no se calcula su contracción de reacción.
+- Los solutos del catálogo corresponden a las formas anhidras actuales.
+- Se supone disolución completa. El indicador de saturación no simula todavía sólido sin disolver, precipitación ni cristalización.
+
+Referencia: [Laliberté, 2009 — DOI 10.1021/je8008123](https://doi.org/10.1021/je8008123). Parámetros en [`src/data/density.ts`](src/data/density.ts), ecuaciones en [`src/core/density.ts`](src/core/density.ts) y auditoría en [`.tools/density-audit/validation.json`](.tools/density-audit/validation.json). Los Excel originales no son necesarios para ejecutar la aplicación.
+
+### Temperatura, equilibrio y aspecto del líquido
+
+Al cambiar la temperatura se recalculan densidad y volumen. No se incluyen evaporación, dilatación del recipiente ni calor de disolución o neutralización: añadir NaOH sólido no calienta automáticamente la muestra.
+
+El pH utiliza un modelo ideal de equilibrio, sin correcciones de actividad; las constantes de los equilibrios débiles se aproximan con valores de referencia a 25 °C y el producto iónico del agua varía con la temperatura. No se simulan velocidades de reacción.
+
+La animación del líquido es un modelo visual de superficie libre, con ondas y amortiguación. No es una simulación volumétrica de fluidos con partículas SPH/PBF.
+
+## Guardado de disoluciones
+
+Las reservas se guardan en el almacenamiento local del navegador. Están asociadas a su perfil y a la dirección de la aplicación: **no se sincronizan mediante GitHub** ni entre dispositivos. Desarrollo (`localhost:5173`) y vista previa (`localhost:4173`) tienen almacenamientos separados. Limpiar los datos del navegador puede eliminar las reservas.
+
+Three.js se instala con las dependencias y se incorpora a la compilación; no se descarga desde una CDN al abrir la página.
+
+## Desarrollo
+
+El proyecto utiliza **TypeScript, JavaScript, Three.js y Vite**. Todos los comandos se ejecutan desde la raíz del repositorio.
+
+| Qué revisar | Dónde |
 | --- | --- |
-| Estructura de la interfaz | `index.html` |
-| Apariencia y pantallas pequeñas | `src/styles/laboratory.css` |
-| Volumen y concentraciones | `src/core/solution.ts` |
-| Solutos y datos educativos | `src/data/catalog.ts` |
-| Pipeta y bureta | `src/instruments/dosing.js` |
-| Grifo y enrase | `src/instruments/water.js` |
-| Transferencia del vaso al matraz | `src/instruments/pouring.js` |
-| Cristalería, cámara y escena | `src/scene/engine.js` |
-| Superficie y movimiento del líquido | `src/scene/liquid.js` |
-| Animación del vertido | `src/scene/pouring-animation.js` |
-| Disoluciones guardadas | `src/storage/reserve.js` |
-| Menús flotantes y resultados | `src/ui/` |
-| Estado de la sesión | `src/state/laboratory.js` |
+| Interfaz y estilos | `index.html`, `src/styles/`, `src/ui/` |
+| Volumen, concentración y transferencias | `src/core/solution.ts` |
+| Equilibrio ácido-base y valoraciones | `src/core/acid-base.ts`, `src/core/titration.ts` |
+| Datos de sustancias y densidad | `src/data/` |
+| Pipeta, bureta, grifo y temperatura | `src/instruments/` |
+| Escena, cristalería y líquido | `src/scene/` |
+| Estado y reservas | `src/state/`, `src/storage/` |
+| Pruebas | `tests/` |
 
-El núcleo químico y la entrada están en TypeScript. Los controles y el motor existentes se han separado en módulos JavaScript para conservar su comportamiento y poder tiparlos progresivamente. No se ha añadido un framework de interfaz.
-
-`src/main.ts` conecta explícitamente las acciones del HTML con los módulos. Si añades un control con un atributo `onclick`, importa y registra su función ahí; para nuevos componentes, se recomienda `addEventListener`.
-
-## Verificar y compilar
+### Comprobaciones
 
 ```sh
 npm test
 npm run typecheck
 npm run build
+```
+
+Para las pruebas de navegador, instala Chromium una vez:
+
+```sh
+npx playwright install chromium
+npm run test:e2e
+npm run test:acidbase
+npm run test:titration
+npm run test:instruments
+```
+
+En PowerShell puedes usar Edge instalado mediante `$env:PLAYWRIGHT_CHANNEL='msedge'`. Cada prueba de navegador inicia y detiene su propio servidor local.
+
+### Compilación para distribuir
+
+```sh
+npm run build
 npm run preview
 ```
 
-La versión distribuible se genera en `dist/` y se sirve en http://localhost:4173 con preview. Publica el contenido de dist en cualquier alojamiento estático. No abras index.html con doble clic: los módulos necesitan un servidor local.
+La compilación se genera en **`dist/`** y la vista previa se abre en **http://localhost:4173**. Para alojar la aplicación, publica el contenido generado de `dist/`. No necesitas publicar `node_modules/`; `.gitignore` excluye tanto las dependencias como los archivos de compilación.
 
-Las pruebas de navegador se ejecutan con `npm run test:e2e`. Instala Chromium una vez con `npx playwright install chromium`, o configura `PLAYWRIGHT_CHANNEL=msedge` para usar Edge instalado. Las pruebas lanzan y detienen su propio servidor en el puerto 5187.
-
-## Datos existentes y funcionamiento sin conexión
-
-Three.js se instala con el proyecto y se incluye en la compilación: no se descarga desde una CDN al abrir el laboratorio.
-
-Las reservas se guardan en el almacenamiento del navegador, asociado a la dirección y al perfil usados. Las reservas del HTML abierto como archivo **no se importan automáticamente** a localhost; tampoco se comparten entre el servidor de desarrollo (5173) y preview (4173). Antes de limpiar datos del navegador, conserva tus preparaciones.
-
-## Alcance del modelo
-
-El volumen usa coeficientes aparentes constantes por soluto y la densidad del agua se aproxima a 1 g/mL. Las ondas, el chorro y el vertido son un modelo visual de superficie libre, no una simulación completa de dinámica de fluidos. El proyecto facilita mejorar estos modelos sin tocar el resto de la aplicación.
-
-## Futuro ejecutable
-
-Esta estructura puede empaquetarse posteriormente con Electron conservando el mismo núcleo y la misma interfaz. Electron no se incluye todavía.
-
-## Módulos ácido-base y temperatura
-
-El selector superior cambia entre dos mesas de trabajo independientes. Se conservan por separado las preparaciones, los instrumentos, el historial y las reservas; las reservas de ácido-base usan otra clave de almacenamiento. Las sesiones activas se conservan al cambiar de módulo durante la misma apertura, y las reservas también al recargar.
-
-En **Reactivos ácido-base**, añade cantidades libres de NaOH, HCl, ácido acético, amoniaco o NaCl en gramos o moles. No necesitas una disolución de stock: puedes añadir el reactivo a agua ya presente o añadir agua/enrasar después. La opción alternativa por concentración admite hasta 1 mol/L y su volumen indicado es final, no volumen de agua. HCl y NH3 se representan como soluto puro equivalente; no se presentan como sólidos. Carga la bureta desde uno de esos recipientes para hacer una valoración. El equilibrio se resuelve con balance de carga, autoprotólisis del agua y balances analíticos de ácido acético y amoniaco. Las cantidades conservadas son las de reactivos aportados, no una lista de todas las especies presentes en equilibrio.
-
-**pH e indicadores** está disponible también en Disoluciones para las sustancias soportadas. La fenolftaleína, el naranja de metilo y el azul de bromotimol colorean el líquido. Los indicadores se consideran trazas sin volumen ni efecto sobre el equilibrio; sus colores y rangos son aproximados.
-
-**Temperatura** está en ambos módulos. La placa aumenta gradualmente la temperatura del líquido; al apagarla, se enfría hacia 25 °C. Los matraces, pipetas y buretas no se calientan. El aviso evita medir por la marca a una temperatura distinta de la calibración. No se modelan evaporación, dilatación del líquido, calor de neutralización ni variación térmica de Ka de los ácidos débiles; solo se ajusta Kw del agua mediante una interpolación aproximada. Por tanto no es un simulador termodinámico completo.
-
-Archivos nuevos: src/core/acid-base.ts, src/ui/acid-base.js, src/app/workspaces.js y src/instruments/temperature.js. Prueba de navegador: npm run test:acidbase.
-
-Fuentes del modelo:
-- [UC Davis, manual de laboratorio: indicadores](https://chemistry.ucdavis.edu/sites/g/files/dgvnsk196/files/inline-files/CHE%202A%20SLM%202024SS%20v1.pdf).
-- [Purdue: indicadores ácido-base](https://chemed.chem.purdue.edu/genchem/demosheets/17.3.html).
-- [OpenStax: constantes de ácidos y bases](https://openstax.org/books/chemistry-2e/pages/14-3-relative-strengths-of-acids-and-bases).
-- [IAPWS, ionización del agua (2024)](https://iapws.org/public/documents/5pjeC/Kw-2024.pdf). Se usa una tabla didáctica aproximada, no la ecuación completa.
-- [BRAND: material volumétrico y temperatura](https://www.brand.de/en/company/newsroom/volumetric-instruments). La estabilidad frente al calor depende del vidrio; el aviso de la simulación no afirma que todo calentamiento produzca una pérdida permanente del aforo.
-
-## Preparación libre y curvas de valoración
-
-La preparación por cantidad suma los nuevos gramos o moles a la composición existente. No sustituye el reactivo que ya contiene el recipiente. El pH se calcula cuando hay agua. El soluto seco NaOH/NaCl se representa en el fondo en lugar de simular un líquido antes de disolverlo.
-
-**Curva y teoría** abre una ventana independiente que puede permanecer junto a la bureta. El registro comienza al abrir la llave con muestra y valorante válidos. El eje X es el volumen acumulado que realmente sale de la bureta, no el tiempo ni la lectura nominal. Puedes pausar y reanudar, mostrar pOH y exportar las medidas en CSV. Deshacer restaura también el registro; cada módulo conserva su curva durante la sesión.
-
-La línea continua registra los pH calculados en cada adición real. La línea discontinua es una referencia a partir de las condiciones iniciales; la banda muestra el viraje del indicador y la línea vertical, la equivalencia estequiométrica 1:1 prevista cuando el valorante es fuerte y puro. La referencia usa exactamente el mismo motor de equilibrio y dilución que las medidas. Si cambias la muestra o la concentración del valorante, el próximo uso de la llave inicia otra serie; los cambios de temperatura pueden separar las medidas de la referencia inicial.
-
-La fenolftaleína se representa incolora por debajo de pH 8,3, progresivamente rosa en el intervalo 8,3–10 y rosa por encima de 10. Se ha retirado la decoloración instantánea a pH muy alto: el modelo no simula la cinética de ese fenómeno. Por tanto no hay que esperar a pH 7 para que desaparezca el rosa.
-
-La sección de teoría explica pH/pOH, equivalencia frente a punto final, curvas fuerte–fuerte y débil–fuerte, región tampón, semiequivalencia y selección del indicador. Fuente complementaria: [OpenStax, Acid-Base Titrations](https://openstax.org/books/chemistry-2e/pages/14-7-acid-base-titrations).
-
-Archivos: src/core/titration.ts (referencia química), src/app/titration.js (registro de las adiciones), src/ui/titration-curve.js (gráfica). Prueba de navegador: npm run test:titration. Las pruebas unitarias incluyen el color a pH 10–14, equivalencia y semiequivalencia, conservación de reactivos y coincidencia entre referencia y transferencias reales.
-
-## Bureta y pipeta colocadas en la escena
-
-Al cargar un instrumento se monta automáticamente sobre el destino seleccionado. También puedes usar Colocar sobre el destino sin cargarlo. Cambiar de destino mueve el montaje; retirarlo conserva el líquido que quede dentro.
-
-La bureta tiene soporte, tubo graduado, menisco y llave accionable con clic. Los controles junto a la llave regulan la apertura sin tener que mantener abierto el menú lateral. La pipeta tiene un pulsador: haz clic en él para descargar la dosis configurada, en la punta para una gota, o utiliza los controles junto al instrumento. La descarga de pipeta es progresiva y se puede detener; deshacer restaura el contenido anterior a la descarga.
-
-El nivel visible se calcula con el volumen real restante del instrumento. Las gotas y el chorro llegan al recipiente elegido, y las transferencias conservan masa, moles y agua. En ácido-base, el pH y la curva de valoración siguen utilizando las cantidades que salen de la bureta. El modelo también está disponible en vista 2D.
-
-Código: src/scene/instruments.js, src/instruments/mount.js y src/instruments/pipette.js. Prueba: npm run test:instruments. La cámara encuadra el instrumento al colocarlo y después permite rotar, hacer zoom y desplazar con Shift.
-
-## Volumen y densidad de las disoluciones
-
-El volumen de una disolucion acuosa de un solo soluto se calcula como masa total / densidad. La correlacion de Laliberte (2009), DOI 10.1021/je8008123, usa temperatura y fraccion masica, con coeficientes contrastados con los anexos XLS aportados. Se incluyen NaCl, NaOH, HCl, H2SO4, NH3, CH3COOH, CuSO4, CoCl2, KI y NaHCO3. Los parametros y rangos estan en `src/data/density.ts`; las ecuaciones en `src/core/density.ts`.
-
-Se permiten incrementos y contracciones: 200 mL de agua con 5.844 g de NaCl dan 201.821 mL a 25 C; con 4 g de NaOH dan 199.705 mL. El enrase resuelve numericamente el agua necesaria; las alicuotas conservan masas y moles y recalculan el volumen del destino antes de aceptar una transferencia.
-
-`volH2OMl` es el volumen equivalente de agua pura a 25 C, un inventario proporcional a masa (rho25 = 0.997044895 g/mL). No representa un volumen parcial medible dentro de la disolucion. La temperatura cambia el volumen calculado, conservando masa. El modelo termico sigue siendo aproximado y no incorpora calor de disolucion o neutralizacion.
-
-La interfaz avisa al extrapolar fuera de los rangos de los datos. Estos rangos no garantizan solubilidad en todas las combinaciones de temperatura y concentracion: se supone disolucion completa. Glucosa, H2Mal, KMnO4 y AgNO3 conservan el modelo aproximado, identificado en pantalla, sin inventar parametros. Las mezclas de distintos reactivos tambien usan una aproximacion; no se modela su contraccion de reaccion. Los solutos del catalogo son anhidros; no se sustituyen por sales hidratadas.
-
-Los anexos originales no se modifican. La auditoria de extraccion y comparacion se encuentra en `.tools/density-audit/validation.json`. Las pruebas de densidad, contraccion, enrase, avisos y capacidad estan en `tests/density.test.mjs`.
+Las capturas de este README están en [`docs/images/`](docs/images/) y proceden de la aplicación real.
