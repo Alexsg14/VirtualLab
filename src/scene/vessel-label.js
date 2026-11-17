@@ -39,13 +39,14 @@ export function crearEtiquetaRecipiente(rec, nombre) {
   const texture = new THREE.CanvasTexture(canvas);
   texture.encoding = THREE.sRGBEncoding;
   texture.anisotropy = 4;
-  const material = new THREE.MeshBasicMaterial({map: texture, side: THREE.FrontSide, polygonOffset: true, polygonOffsetFactor: -2, polygonOffsetUnits: -2});
+  const material = new THREE.MeshBasicMaterial({depthTest:true,depthWrite:true,map: texture, side: THREE.FrontSide, polygonOffset: true, polygonOffsetFactor: -2, polygonOffsetUnits: -2});
   const limits = rec.tipo === 'matraz' ? [0.25, 0.78, 1.5] : rec.tipo === 'erlenmeyer' ? [0.5, 1.12, 1.5] : rec.tipo === 'probeta' ? [0.8, 1.7, 1.8] : [0.7, 1.38, 1.6];
   const radiusAt = y => {
     if (rec.tipo === 'matraz') return radioMatraz(y);
     if (rec.tipo === 'erlenmeyer') return 1.15 - (1.15 - 0.36) * y / 2;
     if (rec.tipo === 'probeta') return 0.32;
-    return 0.85 * 0.96 + 0.85 * 0.04 * y / 2.4;
+    // The beaker now has straight walls: keep the opaque paper outside the glass and ink.
+    return 0.85;
   };
   const positions = [], uvs = [], indices = [];
   const columns = 48, rows = 16;
