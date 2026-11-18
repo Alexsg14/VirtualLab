@@ -1,3 +1,6 @@
+import {generarCSVValoracion} from '../src/core/titration-csv.ts';
+import {labState} from '../src/state/laboratory.js';
+import {iniciarRegistroValoracion,registrarAdicionBureta} from '../src/app/titration.js';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {SOLUTOS} from '../src/data/catalog.ts';
@@ -53,4 +56,19 @@ test('reposición incompatible o fuera de capacidad no altera el contenido',()=>
  const mix=muestraTrasAdicionar(sample('HCl'),sample('NaOH'),10),saved=JSON.stringify(mix);
  assert.throws(()=>anadirDisolucionPreparada(mix,'HCl',0.1,10,500));assert.equal(JSON.stringify(mix),saved);
  const fresh=empty();anadirDisolucionPreparada(fresh,'NaOH',0.5,200,500);near(fresh.volMl,200);near(fresh.molesN,0.1);
+});
+
+test('CSV conserva todas las adiciones aunque la grafica reduzca puntos',()=>{
+ const oldModule=labState.modulo,oldRecord=labState.valoracion;
+ try{
+  labState.modulo='acidbase';labState.valoracion=null;const a=sample('HCl',.1,25),b=sample('NaOH',.1,50);
+  iniciarRegistroValoracion(b,a,'r1');
+  for(let i=0;i<2600;i++){transferirAlicuota(b,a,.005);registrarAdicionBureta(.005,a,'r1');}
+  const r=labState.valoracion;assert.equal(r.datosCSV.length,2601);assert.ok(r.puntos.length<2500);
+  const csv=generarCSVValoracion(r);assert.equal(csv.charCodeAt(0),0xFEFF);
+  const lines=csv.slice(1).trim().split('\r\n');assert.equal(lines.length,2602);
+  assert.equal(lines[0].split(';')[0],'volumen_bureta_mL');assert.equal(lines[1].split(';')[0],'0');
+  const last=lines.at(-1).split(';');assert.equal(last[0],'13');near(Number(last[1].replace(',','.')),medirAcidez(a).pH,1e-9);near(Number(last[5].replace(',','.')),a.volMl,1e-8);near(Number(last[6].replace(',','.')),.0013);
+  assert.ok(last[1].includes(','));assert.equal(last[9],'0,1');assert.equal(last[10],'25');
+ }finally{labState.modulo=oldModule;labState.valoracion=oldRecord;}
 });

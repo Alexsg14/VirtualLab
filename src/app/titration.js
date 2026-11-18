@@ -11,13 +11,15 @@ export function iniciarRegistroValoracion(valorante,muestra,destino){
  const previo=labState.valoracion;
  if(previo&&!previo.obsoleta&&previo.destino===destino&&previo.firmaActual===firmaMuestra(muestra)&&previo.firmaValorante===firmaValorante(valorante))return;
  const m=medirAcidez(muestra);
- labState.valoracion={destino,inicial:structuredClone(muestra),valorante:structuredClone(valorante),volumenMl:0,firmaActual:firmaMuestra(muestra),firmaValorante:firmaValorante(valorante),obsoleta:false,puntos:[{volumenMl:0,pH:m.pH,pOH:m.pOH,temperaturaC:muestra.temperaturaC??25}],equivalenciaMl:volumenEquivalencia(muestra,valorante)};
+ labState.valoracion={destino,inicial:structuredClone(muestra),valorante:structuredClone(valorante),volumenMl:0,firmaActual:firmaMuestra(muestra),firmaValorante:firmaValorante(valorante),obsoleta:false,puntos:[{volumenMl:0,pH:m.pH,pOH:m.pOH,temperaturaC:muestra.temperaturaC??25,volumenDisolucionMl:muestra.volMl,molesValorante:0}],equivalenciaMl:volumenEquivalencia(muestra,valorante)};
+ labState.valoracion.datosCSV=[...labState.valoracion.puntos];
 }
 export function registrarAdicionBureta(ml,muestra,destino){
  const r=labState.valoracion;if(!r||r.destino!==destino||r.obsoleta)return;
  const m=medirAcidez(muestra);if(!m)return;
  r.volumenMl+=ml;r.firmaActual=firmaMuestra(muestra);
- r.puntos.push({volumenMl:r.volumenMl,pH:m.pH,pOH:m.pOH,temperaturaC:muestra.temperaturaC??25});
+ const punto={volumenMl:r.volumenMl,pH:m.pH,pOH:m.pOH,temperaturaC:muestra.temperaturaC??25,volumenDisolucionMl:muestra.volMl,molesValorante:r.volumenMl*r.valorante.molesN/r.valorante.volMl};
+ r.datosCSV??=[...r.puntos];r.datosCSV.push(punto);r.puntos.push(punto);
  if(r.puntos.length>2500)r.puntos=r.puntos.filter((p,i)=>i===0||i%2===1||i===r.puntos.length-1);
 }
 export function invalidarValoracion(rec){const r=labState.valoracion;if(r&&labState[r.destino]===rec)r.obsoleta=true;}

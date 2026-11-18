@@ -1,3 +1,4 @@
+import {readFile} from 'node:fs/promises';
 import {chromium} from '@playwright/test';
 import {spawn} from 'node:child_process';
 import {fileURLToPath} from 'node:url';
@@ -27,7 +28,7 @@ try {
  result=await drive(50);assert.ok(Math.abs(result.v-10)<1e-8);assert.equal(result.count,101);assert.equal(await page.locator('#ab-ph').innerText(),'7.00');assert.equal(await page.locator('#ab-color').evaluate(e=>e.style.backgroundColor),'rgb(240, 247, 252)');assert.match(await page.locator('#curva-equivalencia').innerText(),/10.000 mL/);
  await page.locator('#curva-poh').check();assert.ok(await page.locator('#curva-svg path').count()>10);await page.locator('.curve-theory summary').click();assert.match(await page.locator('.curve-theory').innerText(),/8,3/);assert.match(await page.locator('.curve-theory').innerText(),/semiequivalencia/);
  if(process.env.LAB_SCREENSHOT)await page.screenshot({path:process.env.LAB_SCREENSHOT+'-curva.png'});
- const [download]=await Promise.all([page.waitForEvent('download'),page.locator('[onclick="exportarCurvaValoracion()"] ').click()]);assert.equal(download.suggestedFilename(),'curva_valoracion.csv');
+ const [download]=await Promise.all([page.waitForEvent('download'),page.locator('[onclick="exportarCurvaValoracion()"] ').click()]);assert.equal(download.suggestedFilename(),'curva_valoracion.csv'); const csv=await readFile(await download.path(),'utf8');assert.equal(csv.charCodeAt(0),0xFEFF);const rows=csv.slice(1).trim().split(/\r?\n/);assert.equal(rows.length,102);const cells=rows.at(-1).split(';');assert.equal(cells[0],'10');assert.ok(Math.abs(Number(cells[1].replace(',','.'))-7)<.001);assert.equal(cells[9],'0,1');
  await page.evaluate(()=>window.deshacerOperacion());assert.match(await page.locator('#curva-estado').innerText(),/5.000 mL/);assert.equal(await page.locator('#ab-ph').innerText(),'12.52');
  await page.locator('#modulo-laboratorio').selectOption('disoluciones');assert.equal(await page.locator('#ventana-curva').isVisible(),false);await page.locator('#modulo-laboratorio').selectOption('acidbase');await page.locator('#menu-curva').click();assert.match(await page.locator('#curva-estado').innerText(),/5.000 mL/);
  await page.locator('[onclick="alternarCurvaValoracion()"] ').first().click();

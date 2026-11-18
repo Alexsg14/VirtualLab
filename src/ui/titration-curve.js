@@ -1,3 +1,4 @@
+import {generarCSVValoracion} from '../core/titration-csv.ts';
 import {actualizarSpoilerCurva} from './curve-spoiler.js';
 import {labState} from '../state/laboratory.js';
 import {INDICADORES,medirAcidez} from '../core/acid-base.ts';
@@ -68,7 +69,7 @@ export function actualizarCurvaValoracion(){
 }
 export function exportarCurvaValoracion(){
  const r=labState.valoracion;if(!r)return;
- const text='volumen_bureta_mL;pH;pOH;temperatura_C\n'+r.puntos.map(p=>[p.volumenMl,p.pH,p.pOH,p.temperaturaC].join(';')).join('\n');
+ const text=generarCSVValoracion(r);
  const url=URL.createObjectURL(new Blob([text],{type:'text/csv;charset=utf-8'}));const a=document.createElement('a');a.href=url;a.download='curva_valoracion.csv';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);
 }
 export function iniciarCurvaValoracion(){
