@@ -1,3 +1,4 @@
+import {actualizarSpoilerCurva} from './curve-spoiler.js';
 import {labState} from '../state/laboratory.js';
 import {INDICADORES,medirAcidez} from '../core/acid-base.ts';
 import {volumenesEquivalencia,puntosReferencia} from '../core/titration.ts';
@@ -63,6 +64,7 @@ export function actualizarCurvaValoracion(){
   document.getElementById('curva-condiciones').textContent='Referencia calculada con la composición, concentración y temperatura iniciales. '+(Math.abs((muestra?.temperaturaC??25)-(r.puntos[0].temperaturaC??25))>0.5?'La temperatura ha variado: la medida puede separarse de esa referencia.':'');
  }else document.getElementById('curva-condiciones').textContent='La línea continua será el experimento; la línea discontinua, la referencia del modelo.';
  svg.innerHTML=parts.join('');
+ actualizarSpoilerCurva(r);
 }
 export function exportarCurvaValoracion(){
  const r=labState.valoracion;if(!r)return;

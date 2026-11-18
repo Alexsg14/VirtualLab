@@ -15,7 +15,8 @@
     "test:e2e": "node tests/browser.mjs",
     "test:acidbase": "node tests/acid-base.browser.mjs",
     "test:titration": "node tests/titration.browser.mjs",
-    "test:instruments": "node tests/instruments-scene.browser.mjs"
+    "test:instruments": "node tests/instruments-scene.browser.mjs",
+    "test:spoiler": "node tests/spoiler.browser.mjs"
   },
   "dependencies": {
     "three": "0.128.0"

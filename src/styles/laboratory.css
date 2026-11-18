@@ -869,3 +869,27 @@
 .lab-credits a:focus-visible {outline:2px solid var(--accent-cyan);outline-offset:3px;border-radius:2px;}
 @media(min-width:701px){#sidebar-left {display:flex;flex-direction:column;}#sidebar-left>.lab-menu-trigger {flex-shrink:0;}}
 @media(max-width:700px){.lab-credits {flex:0 0 100%;margin-top:4px;padding:6px 2px 0;font-size:10px;}}
+/* Animated spoiler: an opaque particle veil, never a pixelated chart. */
+.curve-spoiler {position:relative;isolation:isolate;min-height:280px;border-radius:12px;overflow:hidden;}
+.curve-spoiler-content {visibility:hidden;}
+.curve-spoiler.is-revealed .curve-spoiler-content {visibility:visible;animation:spoiler-unveil .55s ease-out both;}
+.curve-spoiler-cover {position:absolute;inset:0;display:grid;place-items:center;background:var(--bg-central);border:1px solid var(--border-color);border-radius:12px;}
+.curve-spoiler-cover canvas {position:absolute;inset:0;width:100%;height:100%;pointer-events:none;}
+.curve-spoiler-prompt {position:relative;max-width:90%;padding:24px;text-align:center;background:var(--bg-central);border:1px solid var(--border-color);border-radius:16px;box-shadow:0 8px 40px #0003;}
+.spoiler-eyebrow {display:block;font-size:10px;letter-spacing:.15em;font-weight:700;color:var(--accent-cyan);margin-bottom:12px;}
+.spoiler-reveal {padding:13px 18px;border:1px solid var(--accent-cyan);border-radius:10px;background:var(--bg-sidebar);color:var(--text-primary);font:600 14px system-ui;cursor:pointer;}
+.curve-spoiler-prompt p {max-width:280px;margin:12px auto 0;font-size:12px;line-height:1.6;color:var(--text-secondary);}
+.spoiler-hide {display:block;margin:8px 0 12px;padding:7px 11px;border:1px solid var(--border-color);border-radius:7px;background:transparent;color:var(--text-secondary);cursor:pointer;}
+.curve-spoiler-cover[hidden],.spoiler-hide[hidden] {display:none;}
+.spoiler-dialog {position:fixed;inset:0;margin:auto;width:min(440px,calc(100vw - 32px));padding:28px;border:1px solid #c6e5fa55;border-radius:20px;background:rgba(29,39,57,.82);color:#f2f6fa;backdrop-filter:blur(24px) saturate(140%);-webkit-backdrop-filter:blur(24px) saturate(140%);box-shadow:0 24px 90px #0006;}
+.spoiler-dialog::backdrop {background:#090e1d66;backdrop-filter:blur(6px);}
+.spoiler-dialog h2 {font-size:23px;line-height:1.3;margin:0 0 12px;}
+.spoiler-dialog p {font-size:14px;line-height:1.7;opacity:.85;}
+.spoiler-dialog-actions {display:flex;gap:10px;margin-top:24px;flex-wrap:wrap;}
+.spoiler-dialog-actions button {flex:1;padding:11px 12px;border:1px solid #b1cfe544;border-radius:10px;background:transparent;color:inherit;font:600 13px system-ui;cursor:pointer;}
+.spoiler-dialog-actions .spoiler-confirm {background:#00bcd4;color:#10202a;border-color:transparent;}
+.spoiler-reveal:focus-visible,.spoiler-hide:focus-visible,.spoiler-dialog button:focus-visible {outline:2px solid var(--accent-cyan);outline-offset:4px;}
+html[data-tema="light"] .spoiler-dialog {background:rgba(247,252,255,.82);color:#182c3b;border-color:#ffffffb0;}
+html[data-tema="light"] .spoiler-dialog-actions button {border-color:#34566b55;}
+@keyframes spoiler-unveil {from{opacity:0;filter:blur(9px);transform:translateY(5px);}to{opacity:1;filter:blur(0);transform:translateY(0);}}
+@media(prefers-reduced-motion:reduce){.curve-spoiler.is-revealed .curve-spoiler-content {animation:none;}}
