@@ -971,3 +971,5 @@ html[data-tema="light"] .spoiler-dialog-actions button {border-color:#34566b55;}
 [data-tema="light"] .calc-btn-fn{color:#155a65;}
 [data-tema="light"] .calc-btn-clear{color:var(--notice-error);}.header-title{background:none;-webkit-text-fill-color:currentColor;color:var(--accent-cyan);}
 .curve-legend span[class],[data-tema="light"] .curve-legend span[class]{color:var(--text-primary);}
+/* Keep the instrument overlay in the same frame as its projected 3D anchor. */
+#controles-instrumento-escena{left:0;top:0;will-change:transform;transition:none;}

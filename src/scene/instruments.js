@@ -24,7 +24,10 @@ function actualizarVista2D(m,fraction,rgb,flow){
  const lever=montaje2D.querySelector('#palanca-instrumento-2d');if(lever)lever.setAttribute('transform','rotate('+llaveBureta.apertura*0.9+' 34 204)');
  return montaje2D.getBoundingClientRect();
 }
-const fmt=n=>n.toLocaleString('es-ES',{minimumFractionDigits:3,maximumFractionDigits:3});
+const numberFormatter=new Intl.NumberFormat('es-ES',{minimumFractionDigits:3,maximumFractionDigits:3});
+const fmt=n=>numberFormatter.format(n);
+function textoControl(id,value){const node=document.getElementById(id);if(node.textContent!==value)node.textContent=value;}
+function propiedadControl(id,key,value){const node=document.getElementById(id);if(node[key]!==value)node[key]=value;}
 function seleccionarMontaje(){
  const m=labState.montajeDosificador;if(!m)return;
  document.getElementById('dos-tipo').value=m.tipo;document.getElementById('dos-destino').value=m.destino;actualizarDosificador();
@@ -168,22 +171,27 @@ export function actualizarInstrumento3D(scene,camera,canvas,time,liquidos){
   drop.material.color.copy(u.liquid.material.color);
  }
  const rect2d=actualizarVista2D(m,fraction,rgb,flow);
- const ui=controles();ui.hidden=!!vertidoActivo;
+ const ui=controles();if(ui.hidden!==!!vertidoActivo)ui.hidden=!!vertidoActivo;
  if(!ui.hidden){
-  document.getElementById('escena-instrumento-nombre').textContent=(m.tipo==='bureta'?'Bureta':'Pipeta')+' → R'+m.destino.slice(1);
-  document.getElementById('escena-instrumento-volumen').textContent=fmt(ins.volMl)+' / '+ins.capacidadMax+' mL';
-  document.getElementById('escena-error').textContent=document.getElementById('err-dosificador').textContent;
-  document.getElementById('escena-bureta-controles').hidden=m.tipo!=='bureta';document.getElementById('escena-pipeta-controles').hidden=m.tipo!=='pipeta';
-  const slider=document.getElementById('escena-apertura');if(document.activeElement!==slider)slider.value=llaveBureta.apertura;
-  document.getElementById('escena-apertura-texto').textContent=llaveBureta.apertura+' % · '+fmt(flow)+' mL/s';
-  document.getElementById('escena-llave').textContent=llaveBureta.apertura?'Cerrar llave':'Abrir llave';
-  document.getElementById('escena-llave').setAttribute('aria-pressed',String(llaveBureta.apertura>0));
-  const dose=document.getElementById('escena-dosis');if(document.activeElement!==dose)dose.value=document.getElementById('dos-ml').value;
-  const busy=descargaPipeta.timer!==null;document.getElementById('escena-descargar').disabled=busy;document.getElementById('escena-gota').disabled=busy;dose.disabled=busy;document.getElementById('escena-parar').hidden=!busy;
+  textoControl('escena-instrumento-nombre',(m.tipo==='bureta'?'Bureta':'Pipeta')+' → R'+m.destino.slice(1));
+  textoControl('escena-instrumento-volumen',fmt(ins.volMl)+' / '+ins.capacidadMax+' mL');
+  textoControl('escena-error',document.getElementById('err-dosificador').textContent);
+  propiedadControl('escena-bureta-controles','hidden',m.tipo!=='bureta');propiedadControl('escena-pipeta-controles','hidden',m.tipo!=='pipeta');
+  const slider=document.getElementById('escena-apertura');if(document.activeElement!==slider&&slider.value!==String(llaveBureta.apertura))slider.value=llaveBureta.apertura;
+  textoControl('escena-apertura-texto',llaveBureta.apertura+' % · '+fmt(flow)+' mL/s');
+  textoControl('escena-llave',llaveBureta.apertura?'Cerrar llave':'Abrir llave');
+  const pressed=String(llaveBureta.apertura>0),key=document.getElementById('escena-llave');if(key.getAttribute('aria-pressed')!==pressed)key.setAttribute('aria-pressed',pressed);
+  const dose=document.getElementById('escena-dosis'),value=document.getElementById('dos-ml').value;if(document.activeElement!==dose&&dose.value!==value)dose.value=value;
+  const busy=descargaPipeta.timer!==null;propiedadControl('escena-descargar','disabled',busy);propiedadControl('escena-gota','disabled',busy);if(dose.disabled!==busy)dose.disabled=busy;propiedadControl('escena-parar','hidden',!busy);
   const rect=canvas.getBoundingClientRect(),host=document.getElementById('panel-central').getBoundingClientRect();
+  // Projection and WebGL rendering must use the same camera pose in this frame.
+  // lookAt changes the quaternion; matrixWorldInverse may still hold its previous value.
+  camera.updateMatrixWorld(true);
   const anchor=g.localToWorld(new THREE.Vector3(0.25,m.tipo==='bureta'?0.4:u.base+u.altura+0.25,0.15)).project(camera);
   const x=rect2d?rect2d.right-host.left+8:rect.left+(anchor.x+1)*rect.width/2-host.left+20,y=rect2d?rect2d.top-host.top+(m.tipo==='bureta'?180:0):rect.top+(1-anchor.y)*rect.height/2-host.top-24;
-  ui.style.left=Math.max(8,Math.min(host.width-ui.offsetWidth-8,x))+'px';ui.style.top=Math.max(54,Math.min(host.height-ui.offsetHeight-60,y))+'px';
+  const px=Math.max(8,Math.min(host.width-ui.offsetWidth-8,x)),py=Math.max(54,Math.min(host.height-ui.offsetHeight-60,y));
+  // A compositor transform retains fractional pixels and avoids per-frame left/top layout.
+  const transform='translate3d('+px+'px,'+py+'px,0)';if(ui.style.transform!==transform)ui.style.transform=transform;
  }
  return nuevo;
 }
