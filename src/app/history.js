@@ -66,7 +66,7 @@ export function agregarAlHistorial(entrada) {
   const ts = ahora.getHours().toString().padStart(2,'0') + ':' +
              ahora.getMinutes().toString().padStart(2,'0') + ':' +
              ahora.getSeconds().toString().padStart(2,'0');
-  labState.historial.push({ ...entrada, timestamp: ts });
+  labState.historial.push({ ...entrada, timestamp: ts, fechaISO:ahora.toISOString(), mesa:labState.mesaActiva, modulo:labState.modulo, estado:structuredClone(getRecActivo()) });
 }
 
 export function renderizarHistorial() {

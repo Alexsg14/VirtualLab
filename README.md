@@ -21,7 +21,7 @@ Virtual Lab permite relacionar las operaciones de laboratorio con las magnitudes
 | Preparar | Manipular | Analizar |
 | :--- | :--- | :--- |
 | Añadir soluto y agua, enrasar y diluir. | Transferir alícuotas con pipeta, regular una bureta y agitar. | Consultar concentración, densidad, pH y curvas de valoración. |
-| Elegir recipiente y capacidad. | Calentar, enfriar y guardar disoluciones. | Exportar resultados a TXT y medidas de valoración a CSV. |
+| Elegir recipiente y capacidad. | Calentar, enfriar y guardar disoluciones. | Exportar resultados a TXT, medidas de valoración a CSV y diarios con cálculos a PDF/LaTeX. |
 
 La interfaz ofrece modos día y noche, cámara 3D, malla de referencia opcional, información de los recipientes y la posibilidad de deshacer operaciones.
 
@@ -73,6 +73,22 @@ En esta valoración, **25 mL de ácido acético 0,1 M** reciben **NaOH 0,1 M**. 
 | Marcas verticales | Volúmenes de equivalencia estequiométrica previstos. |
 
 El módulo admite **HCl, NaOH, CH₃COOH, NH₃, H₂SO₄, ácido malónico y NaCl**. Incluye indicadores, lectura de pH y pOH, pausa y reanudación de la dosificación y exportación de la curva a CSV. Los ácidos dipróticos incorporan dos etapas de disociación; sus equivalencias no siempre generan dos saltos de pH separados.
+
+## Diario de laboratorio
+
+El botón **Diario PDF · Cálculos**, en el historial, genera un informe del recipiente activo con autor, observaciones, operaciones registradas y factores de conversión para **mol/L, g/L, % m/m, ppm y mol/kg de agua**. Esta primera versión admite disoluciones de un único soluto y utiliza el volumen final calculado, sin presuponer un enrase correcto.
+
+[Ver un diario de ejemplo en PDF](public/examples/diario_laboratorio_ejemplo.pdf) · [Funcionamiento y preparación](docs/diario-laboratorio.md)
+
+El PDF se compila con LaTeX **dentro del navegador**, sin instalar MiKTeX ni enviar datos a servicios externos. Para preparar una copia, ejecuta una vez con conexión a Internet:
+
+```sh
+npm run preparar:latex
+```
+
+Se descargan unos 38 MB de compilador, fuentes y paquetes en `public/vendor/latex/`, con comprobación de integridad. Estos recursos generados no se versionan en Git. Para distribuir una copia que funcione sin Internet, incluye esa carpeta ya preparada y las dependencias habituales del laboratorio. Ejecuta la preparación antes de compilar si vas a distribuir `dist/`.
+
+La descarga del archivo `.tex` y la apertura del PDF de ejemplo funcionan sin preparar el compilador. El modelo químico sigue siendo el mismo modelo ideal descrito más abajo.
 
 ## Instalación
 
@@ -160,7 +176,10 @@ npm run test:e2e
 npm run test:acidbase
 npm run test:titration
 npm run test:instruments
+npm run test:diary
 ```
+
+La prueba del diario compila un PDF real sin conexiones externas cuando los recursos de LaTeX están preparados; si faltan, verifica el aviso y declara pendiente esa comprobación.
 
 También se puede utilizar Edge instalado. En PowerShell, establece `$env:PLAYWRIGHT_CHANNEL='msedge'` antes de ejecutar las pruebas. Cada prueba inicia y detiene su propio servidor local.
 
