@@ -126,6 +126,14 @@ npm run preview
 
 La web compilada se genera en **`dist/`**. La vista previa está disponible en **http://localhost:4173**. Para desplegarla en un alojamiento estático, publica el contenido de `dist/`.
 
+### GitHub Pages
+
+El repositorio incluye un despliegue **manual**: **Actions → Publicar laboratorio en Pages → Run workflow**. La primera vez hay que seleccionar **GitHub Actions** en **Settings → Pages**. Subir cambios a `main` no actualiza automáticamente la web.
+
+Antes de publicar se ejecutan las pruebas, se prepara LaTeX y se comprueba un PDF real sobre la web compilada. Se publica únicamente `dist/`.
+
+[Configuración, actualizaciones y retirada](docs/github-pages.md).
+
 ## Modelo científico
 
 ### Densidad y volumen
