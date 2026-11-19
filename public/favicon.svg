@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <title>Virtual Lab</title>
+  <rect width="64" height="64" rx="14" fill="#172333"/>
+  <path d="M23 12h18M27 13v15L14 48c-2 4 0 7 5 7h26c5 0 7-3 5-7L37 28V13" fill="none" stroke="#39d6df" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M21 41c7-4 13 4 22 0l6 10c.5 1-.5 2-3 2H18c-2 0-3-1-2-3z" fill="#39d6df"/>
+  <circle cx="31" cy="36" r="2" fill="#ecfeff"/>
+  <circle cx="35" cy="29" r="1.5" fill="#39d6df"/>
+</svg>
