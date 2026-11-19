@@ -33,6 +33,8 @@ jobs:
         run: npm run build
       - name: Instalar navegador de comprobación
         run: npx playwright install --with-deps chromium
+      - name: Comprobar contraste y señales visuales
+        run: npm run test:colors
       - name: Comprobar web estática y PDF sin servicios externos
         run: npm run test:pages
       - name: Preparar archivo para Pages

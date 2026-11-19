@@ -31,6 +31,7 @@ export function actualizarCurvaValoracion(){
  const eq=r?.equivalenciaMl;
  const xmax=Math.max(5,Math.ceil(Math.max(r?.volumenMl*1.12||0,eq?eq*1.5:10)/5)*5);
  const showOH=document.getElementById('curva-poh').checked;
+ document.getElementById('legend-poh').hidden=!showOH;
  const values=r?r.puntos.flatMap(p=>showOH?[p.pH,p.pOH]:[p.pH]):[0,14];
  const ymin=Math.min(0,Math.floor(Math.min(...values))),ymax=Math.max(14,Math.ceil(Math.max(...values)));
  const L=52,T=20,W=602,H=238;
@@ -38,7 +39,12 @@ export function actualizarCurvaValoracion(){
  const parts=['<title>Curva de valoración: pH frente a volumen añadido por la bureta</title>'];
  const indicador=muestra?.indicador||r?.inicial.indicador;
  const ind=INDICADORES[indicador];
- if(ind)parts.push('<rect x="'+L+'" y="'+y(ind.hasta)+'" width="'+W+'" height="'+(y(ind.desde)-y(ind.hasta))+'" fill="#ed4e9b" opacity="0.13"/>');
+ document.getElementById('legend-indicator').hidden=!ind;
+ if(ind){
+  parts.push('<defs><pattern id="indicator-hatch" width="8" height="8" patternUnits="userSpaceOnUse"><path class="indicator-hatch-line" d="M-2 2L2 -2M0 8L8 0M6 10L10 6"/></pattern></defs>');
+  parts.push('<rect x="'+L+'" y="'+y(ind.hasta)+'" width="'+W+'" height="'+(y(ind.desde)-y(ind.hasta))+'" fill="url(#indicator-hatch)"/>');
+  parts.push('<text class="curve-band-label" x="'+(L+W-6)+'" y="'+Math.max(T+12,y(ind.hasta)-5)+'" text-anchor="end">Viraje: '+ind.desde+'–'+ind.hasta+'</text>');
+ }
  for(let i=0;i<=7;i++){
   const v=ymin+(ymax-ymin)*i/7,yy=y(v);
   parts.push('<path d="M'+L+' '+yy+'h'+W+'" stroke="#364252"/><text x="'+(L-10)+'" y="'+(yy+4)+'" text-anchor="end">'+v.toFixed(0)+'</text>');
@@ -51,7 +57,8 @@ export function actualizarCurvaValoracion(){
  const line=(pts,key,color,dash='')=>{
   if(!pts.length)return;
   const d=pts.map((p,i)=>(i?'L':'M')+x(p.volumenMl).toFixed(2)+' '+y(p[key]).toFixed(2)).join(' ');
-  parts.push('<path d="'+d+'" fill="none" stroke="'+color+'" stroke-width="2.2" '+(dash?'stroke-dasharray="'+dash+'"':'')+'/>');
+  const series=key==='pOH'?'poh':dash?'reference':'ph';
+  parts.push(`<path data-series="${series}" aria-label="${series==='poh'?'pOH: trazo y punto':series==='reference'?'Referencia: discontinua':'pH: continua'}" d="${d}" fill="none" stroke="${color}" stroke-width="2.5" ${dash?'stroke-dasharray="'+dash+'"':''}/>`);
  };
  if(r){
   const maxReferencia=Math.min(xmax,Math.max(0,(r.inicial.capacidadMax??Infinity)-r.inicial.volMl));
@@ -60,7 +67,9 @@ export function actualizarCurvaValoracion(){
   for(const [i,etapa] of etapas.entries()){if(etapa>xmax)continue;parts.push('<path d="M'+x(etapa)+' '+T+'v'+H+'" stroke="#e7ba55" stroke-dasharray="3 4"/><text x="'+Math.min(L+W-28,x(etapa)+5)+'" y="34" fill="#e7ba55">Veq'+(i+1)+'</text>');}
   const neutro=medirAcidez(r.inicial)?.neutro??7;
   parts.push('<path d="M'+L+' '+y(neutro)+'h'+W+'" stroke="#71b997" stroke-dasharray="2 5"/>');
-  line(r.puntos,'pH','#00d1df');if(showOH)line(r.puntos,'pOH','#bba0fb');
+  parts.push('<text x="'+(L+6)+'" y="'+(y(neutro)-5)+'" class="curve-band-label">pH neutro: '+neutro.toFixed(2)+'</text>');
+  line(r.puntos,'pH','#00d1df');if(showOH)line(r.puntos,'pOH','#bba0fb','10 4 2 4');
+  if(showOH){const q=r.puntos.at(-1),xx=x(q.volumenMl),yy=y(q.pOH);parts.push('<path data-marker="poh" d="M'+xx+' '+(yy-5)+'l5 5-5 5-5-5Z" fill="var(--curve-oh)"/>');}
   const last=r.puntos.at(-1);parts.push('<circle cx="'+x(last.volumenMl)+'" cy="'+y(last.pH)+'" r="4" fill="#00d1df"/>');
   document.getElementById('curva-condiciones').textContent='Referencia calculada con la composición, concentración y temperatura iniciales. '+(Math.abs((muestra?.temperaturaC??25)-(r.puntos[0].temperaturaC??25))>0.5?'La temperatura ha variado: la medida puede separarse de esa referencia.':'');
  }else document.getElementById('curva-condiciones').textContent='La línea continua será el experimento; la línea discontinua, la referencia del modelo.';

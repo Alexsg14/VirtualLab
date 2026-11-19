@@ -25,6 +25,8 @@ Virtual Lab permite relacionar las operaciones de laboratorio con las magnitudes
 
 La interfaz ofrece modos día y noche, cámara 3D, malla de referencia opcional, información de los recipientes y la posibilidad de deshacer operaciones.
 
+Los estados se acompañan de texto o marcas, las gráficas distinguen sus series por trazos y el color previsto del indicador tiene una descripción textual. [Alcance de las mejoras de color y contraste](docs/colores-accesibilidad.md).
+
 ## Disoluciones
 
 ### El volumen de agua no es el volumen de disolución

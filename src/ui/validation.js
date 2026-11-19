@@ -6,7 +6,8 @@ export function mostrarError(id, msg) {
   if (el) {
     if(id==='err-disolvente' && panelLaboratorioAbierto==='grifo') document.querySelector('#flotante-grifo .lab-floating-body').appendChild(el);
     else if(id==='err-disolvente') document.querySelector('#flotante-agua .lab-floating-body').appendChild(el);
-    el.textContent = msg;
+    el.setAttribute('role','alert');
+    el.textContent = /^Error:/i.test(msg) ? msg : 'Error: '+msg;
   }
 }
 

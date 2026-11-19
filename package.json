@@ -20,7 +20,8 @@
     "preparar:latex": "node scripts/prepare-latex.mjs",
     "test:diary": "node tests/diary.browser.mjs",
     "test:cabinet": "node tests/cabinet.browser.mjs",
-    "test:pages": "node tests/pages.browser.mjs"
+    "test:pages": "node tests/pages.browser.mjs",
+    "test:colors": "node tests/colors.browser.mjs"
   },
   "dependencies": {
     "three": "0.128.0"

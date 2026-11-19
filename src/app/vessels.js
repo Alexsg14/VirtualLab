@@ -26,6 +26,7 @@ export function setModo(modo) {
   document.getElementById('btn-eso').classList.toggle('activo', modo === 'ESO');
   document.getElementById('btn-bach').classList.toggle('activo', modo === 'Bachillerato');
   aplicarModo();
+  document.querySelectorAll('.modo-btn').forEach(b=>b.setAttribute('aria-pressed',String(b.classList.contains('activo'))));
   recalcular();
 }
 
@@ -74,6 +75,7 @@ export function selRecipiente(tipo) {
   document.querySelectorAll('.recipiente-btn').forEach(b => b.classList.remove('activo'));
   const btn = document.getElementById('rbtn-' + tipo);
   if (btn) btn.classList.add('activo');
+  document.querySelectorAll('.recipiente-btn').forEach(b=>b.setAttribute('aria-pressed',String(b.classList.contains('activo'))));
 
   limpiarError('err-disolvente');
   limpiarError('err-soluto');
@@ -131,10 +133,12 @@ export function cambiarCapacidad(nuevaCap) {
 export function actualizarBotonesCapacidad() {
   const rec = getRecActivo();
   const cap = getCapacidadMax(rec);
+  document.querySelectorAll('.recipiente-btn,.modo-btn').forEach(b=>b.setAttribute('aria-pressed',String(b.classList.contains('activo'))));
+  for(const i of [1,2]){const pill=document.getElementById('pill-r'+i);if(pill){pill.dataset.selected=String(labState.mesaActiva===i);pill.setAttribute('aria-label','Recipiente '+i+(labState.mesaActiva===i?' · activo':''));}}
   document.getElementById('inp-capacidad').value = cap;
   [50, 100, 250, 500, 1000, 2000].forEach(v => {
     const btn = document.getElementById('pcap-' + v);
-    if (btn) btn.classList.toggle('activo', cap === v);
+    if (btn) {btn.classList.toggle('activo', cap === v);btn.setAttribute('aria-pressed',String(cap===v));}
   });
 }
 
@@ -157,10 +161,12 @@ export function seleccionarMesa(num) {
     pill2.style.borderColor = num === 2 ? 'var(--accent-cyan)' : 'var(--border-color)';
   }
 
+  for(const [i,pill] of [[1,pill1],[2,pill2]])if(pill){pill.dataset.selected=String(num===i);pill.setAttribute('aria-label','Recipiente '+i+(num===i?' · activo':''));}
   const rec = getRecActivo();
   document.querySelectorAll('.recipiente-btn').forEach(b => b.classList.remove('activo'));
   const btn = document.getElementById('rbtn-' + rec.tipo);
   if (btn) btn.classList.add('activo');
+  document.querySelectorAll('.recipiente-btn').forEach(b=>b.setAttribute('aria-pressed',String(b.classList.contains('activo'))));
   labState.recipiente = rec.tipo;
 
   const selSol = document.getElementById('sel-soluto');

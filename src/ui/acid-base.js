@@ -1,3 +1,4 @@
+import {describirColorIndicador} from './indicator-description.ts';
 import {descargaPipeta,detenerDescargaPipeta} from '../instruments/pipette.js';
 import {invalidarValoracion} from '../app/titration.js';
 import {labState} from '../state/laboratory.js';
@@ -40,6 +41,7 @@ export function actualizarPanelAcidez(){
  document.getElementById('ab-cursor').style.left=(m?Math.max(0,Math.min(100,m.pH/14*100)):50)+'%';
  const color=colorIndicador(rec),sample=document.getElementById('ab-color');sample.style.background=color?'rgb('+color.join(',')+')':'#bbdef0';
  document.getElementById('ab-indicador-actual').textContent=rec.indicador?INDICADORES[rec.indicador]?.nombre:'Sin indicador';
+ document.getElementById('ab-color-text').textContent=describirColorIndicador(rec);
  const mixture=Object.keys(rec.componentes||{}).length>1;document.getElementById('ab-mezcla').textContent=mixture?'Reactivos aportados: '+Object.keys(rec.componentes).map(formulaSoluto).join(' + '):'';
 }
 
