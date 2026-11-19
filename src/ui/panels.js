@@ -49,6 +49,6 @@ export function iniciarPanelesLaboratorio() {
     header.addEventListener('pointercancel',()=>drag=null);
     header.addEventListener('lostpointercapture',()=>drag=null);
   });
-  document.addEventListener('keydown',e=>{if(e.key==='Escape' && panelLaboratorioAbierto){e.preventDefault();cerrarPanelLaboratorio();}});
+  document.addEventListener('keydown',e=>{if(e.key==='Escape' && panelLaboratorioAbierto && !document.querySelector('dialog[open]')){e.preventDefault();cerrarPanelLaboratorio();}});
   window.addEventListener('resize',()=>{if(panelLaboratorioAbierto)ajustarPanelLaboratorio(document.getElementById('flotante-'+panelLaboratorioAbierto));});
 }

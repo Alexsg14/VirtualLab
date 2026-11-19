@@ -1,8 +1,10 @@
+import type {AporteComercial} from './commercial-reagents.ts';
+import {botePorId} from '../data/reagent-bottles.ts';
 import type {Disolucion} from './types.ts';
 import {actualizarVolumen,calcularConcentraciones,componentesDe} from './solution.ts';
 import {RHO_AGUA_25} from './density.ts';
 import {SOLUTOS,NOMBRES_RECIPIENTE} from '../data/catalog.ts';
-interface Entrada {timestamp?:string;fechaISO?:string;tipo:string;soluto?:string;cantidad?:string;mesa?:number;estado?:Disolucion;}
+interface Entrada {timestamp?:string;fechaISO?:string;tipo:string;soluto?:string;cantidad?:string;mesa?:number;estado?:Disolucion;reactivoComercial?:AporteComercial;}
 export interface Diario {rec:Disolucion&{tipo?:string};mesa:number;historial:Entrada[];titulo?:string;autor?:string;observaciones?:string;fecha?:string;}
 export function escaparLatex(s:unknown):string{
  const map:Record<string,string>={'\\':'\\textbackslash{}','{':'\\{','}':'\\}','%':'\\%','$':'\\$','&':'\\&','#':'\\#','_':'\\_','^':'\\textasciicircum{}','~':'\\textasciitilde{}'};
@@ -20,6 +22,16 @@ export function generarDiarioLatex(data:Diario):string{
  const history=(data.historial??[]).filter(e=>e.mesa===data.mesa||e.mesa==null).slice(-120);
  const acciones:Record<string,string>={soluto:'Adición de soluto',disolvente:'Adición de agua',enrase:'Enrase registrado',vaciar:'Vaciado',vertido:'Transferencia',instrumento:'Instrumento',cambio_recipiente:'Cambio de recipiente',agitacion:'Agitación'};
  const rows=history.map(e=>`${text(e.timestamp)} & ${text(acciones[e.tipo]??e.tipo)}: ${text(e.soluto??'')} ${text(e.cantidad??'')} ${e.mesa==null?'(registro anterior sin recipiente identificado)':''} \\\\`).join('\n');
+ const comerciales=history.filter(e=>e.mesa===data.mesa&&e.reactivoComercial).map(e=>{
+  const a=e.reactivoComercial!,b=botePorId(a.productoId);
+  return String.raw`\bloque{${text(b.nombre)}: ${n(a.cantidad,6)} ${text(a.unidad)} de producto}
+${text(b.referencia)}. ${text(b.especificacion)}
+${a.unidad==='mL'?String.raw`\[m_{\mathrm{producto}}=${n(a.cantidad,6)}\,\mathrm{mL}\times${n(a.densidadGmL!,4)}\,\mathrm{g/mL}=${n(a.masaProductoG,6)}\,\mathrm{g}\]
+\[m_{\mathrm{soluto}}=${n(a.masaProductoG,6)}\,\mathrm{g}\times${n(a.fraccionMasica,4)}=${n(a.masaSolutoG,6)}\,\mathrm{g}\]
+\[m_{\mathrm{agua}}=${n(a.masaProductoG,6)}\,\mathrm{g}\times(1-${n(a.fraccionMasica,4)})=${n(a.masaAguaG,6)}\,\mathrm{g}\]`:String.raw`Muestra idealizada: $m_{\mathrm{soluto}}=${n(a.masaSolutoG,6)}\,\mathrm{g}$. No se utiliza la pureza mínima de etiqueta como ensayo exacto.`}
+\[n=${n(a.masaSolutoG,6)}\,\mathrm{g}\times\frac{1\,\mathrm{mol}}{${n(b.M,3)}\,\mathrm{g}}=${n(a.moles,7)}\,\mathrm{mol}\]
+${text(b.notaModelo)}\par`;
+ }).join('\n');
  const date=new Date(data.fecha??Date.now());if(Number.isNaN(date.getTime()))throw Error('Fecha no válida.');
  const warnings=r.modeloVolumen!.avisos.map(text).join(' ');
  return String.raw`\documentclass[11pt,a4paper]{article}
@@ -81,5 +93,10 @@ Los factores conservan sus unidades para mostrar cómo se obtiene cada magnitud.
 El agua se conserva como masa: su volumen equivalente a $25\,{}^\circ\mathrm{C}$ es $${n(r.volH2OMl,4)}\,\mathrm{mL}$, con $\rho_{25}=${n(RHO_AGUA_25,7)}\,\mathrm{g/mL}$. No es el volumen parcial del agua en la disolución.
 ${r.modeloVolumen!.modelo==='laliberte'?'Se utiliza la correlación de densidad de Laliberté (2009), DOI 10.1021/je8008123. El volumen final se obtiene mediante masa total dividida por densidad.':'El volumen utiliza una aproximación didáctica para este soluto.'}
 ${warnings?String.raw`\textbf{Avisos:} ${warnings}`:''}
+${comerciales?String.raw`\newpage
+{\small\bfseries\color{acento}VIRTUAL LAB / REACTIVOS COMERCIALES}\par
+{\Large\bfseries Aportes registrados desde los botes}\par
+Estos cálculos describen las adiciones registradas. Si hubo vaciados o transferencias posteriores, no equivalen al inventario final del recipiente.
+${comerciales}`:''}
 \end{document}`;
 }

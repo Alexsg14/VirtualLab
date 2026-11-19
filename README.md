@@ -74,6 +74,14 @@ En esta valoración, **25 mL de ácido acético 0,1 M** reciben **NaOH 0,1 M**. 
 
 El módulo admite **HCl, NaOH, CH₃COOH, NH₃, H₂SO₄, ácido malónico y NaCl**. Incluye indicadores, lectura de pH y pOH, pausa y reanudación de la dosificación y exportación de la curva a CSV. Los ácidos dipróticos incorporan dos etapas de disociación; sus equivalencias no siempre generan dos saltos de pH separados.
 
+## Armario de reactivos
+
+Consulta botes de referencia de **HCl acuoso al 36 % m/m, H₂SO₄ concentrado al 98 % nominal, NaOH en lentejas y NaCl sólido**. Sus fichas incluyen propiedades, especificaciones, representaciones de etiquetas de seguridad e indicaciones H/P seleccionadas con enlaces a la documentación del fabricante.
+
+Desde **Soluto → Desde un bote comercial** (o **Reactivos ácido-base → Desde un bote comercial**), puedes calcular una preparación y añadir producto al recipiente activo. El HCl aporta tanto soluto como agua; el volumen final se recalcula. Los sólidos se representan explícitamente como muestras idealizadas: la pureza mínima declarada no se interpreta como ensayo exacto. Las adiciones y sus factores de conversión quedan en el diario PDF y LaTeX.
+
+[Datos, fuentes y alcance del armario](docs/armario-reactivos.md).
+
 ## Diario de laboratorio
 
 El botón **Diario PDF · Cálculos**, en el historial, genera un informe del recipiente activo con autor, observaciones, operaciones registradas y factores de conversión para **mol/L, g/L, % m/m, ppm y mol/kg de agua**. Esta primera versión admite disoluciones de un único soluto y utiliza el volumen final calculado, sin presuponer un enrase correcto.

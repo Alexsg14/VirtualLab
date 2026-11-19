@@ -1,0 +1,23 @@
+import {chromium} from '@playwright/test';import {spawn} from 'node:child_process';import {setTimeout as delay} from 'node:timers/promises';import {readFile} from 'node:fs/promises';import assert from 'node:assert/strict';import {fileURLToPath} from 'node:url';
+const root=fileURLToPath(new URL('../',import.meta.url));const server=spawn(process.execPath,['node_modules/vite/bin/vite.js','--configLoader','native','--host','127.0.0.1','--port','5196','--strictPort'],{cwd:root,windowsHide:true,stdio:'ignore'});let browser;
+try{
+ for(let i=0;i<100;i++){try{if((await fetch('http://127.0.0.1:5196')).ok)break;}catch{}await delay(100);}
+ browser=await chromium.launch({channel:process.env.PLAYWRIGHT_CHANNEL||'msedge',headless:true,args:['--enable-unsafe-swiftshader']});const page=await browser.newPage({viewport:{width:1440,height:1000}}),errors=[];page.on('pageerror',e=>errors.push(e.message));await page.goto('http://127.0.0.1:5196');await page.waitForSelector('html[data-laboratorio="listo"]');
+ await page.evaluate(async()=>{const {labState}=await import('/src/state/laboratory.js');Object.assign(labState.r1,{soluteId:'NaCl',masaG:0,molesN:0,volH2OMl:0,volMl:0,volSolucionMl:0,temperaturaC:25,capacidadMax:200,componentes:undefined});labState.mesaActiva=1;});
+ if(!await page.locator('#flotante-soluto').isVisible())await page.locator('#menu-soluto').click();await page.locator('#soluto-bote-comercial').click();
+ assert.equal(await page.locator('[data-product="nacl-solid"]').getAttribute('aria-pressed'),'true');
+ await page.locator('[data-product="h2so4-98"]').click();assert.equal(await page.locator('.cabinet-product-head .bottle-label>b').textContent(),'98 % m/m');assert.ok((await page.locator('.cabinet-detail h3').textContent()).includes('sulfúrico'));await page.locator('#cabinet-dispense').click();
+ const sulfuric=await page.evaluate(async()=>{const {labState}=await import('/src/state/laboratory.js');return {id:labState.r1.soluteId,mass:labState.r1.masaG,n:labState.r1.molesN};});assert.equal(sulfuric.id,'H2SO4');assert.ok(Math.abs(sulfuric.mass-1.8032)<1e-9);assert.ok(Math.abs(sulfuric.n-1.8032/98.08)<1e-9);await page.evaluate(()=>window.deshacerOperacion());
+ await page.locator('[data-product="hcl-36"]').click();
+ await page.locator('.cabinet-safety summary').click();assert.equal(await page.locator('.cabinet-detail').getByText('H314',{exact:true}).isVisible(),true);
+ await page.screenshot({path:'D:/VIRTUAL_LAB/output/cabinet-dark.png'});
+ await page.locator('.cabinet-calculator summary').click();await page.locator('#cabinet-use-calculation').click();await page.locator('#cabinet-dispense').click();assert.ok((await page.locator('#cabinet-status').textContent()).includes('Añadido'));
+ const state=await page.evaluate(async()=>{const {labState}=await import('/src/state/laboratory.js');return {n:labState.r1.molesN,water:labState.r1.volH2OMl,history:labState.historial.at(-1)};});assert.ok(Math.abs(state.n-.1)<1e-10);assert.ok(state.water>0);assert.equal(state.history.reactivoComercial.productoId,'hcl-36');
+ await page.locator('[data-product="nacl-solid"]').click();await page.locator('.cabinet-safety summary').click();assert.ok((await page.locator('.cabinet-safety').textContent()).includes('No clasificado'));
+ await page.locator('#cabinet-dispense').click();assert.ok((await page.locator('#cabinet-status').textContent()).includes('solo se admite'));
+ await page.keyboard.press('Escape');assert.equal(await page.locator('.cabinet-dialog').isVisible(),false);
+ await page.evaluate(async()=>{const {labState}=await import('/src/state/laboratory.js');const s=await import('/src/core/solution.ts');s.agregarAgua(labState.r1,s.aguaParaEnrasar(labState.r1,200));window.abrirDiario();});
+ const pending=page.waitForEvent('download',{timeout:180000});await page.locator('#diary-pdf').click();const pdf=await pending;assert.equal((await readFile(await pdf.path())).subarray(0,5).toString(),'%PDF-');await pdf.saveAs('D:/VIRTUAL_LAB/output/diario_hcl_comercial.pdf');
+ await page.keyboard.press('Escape');await page.evaluate(()=>{document.documentElement.dataset.tema='light';});
+ if(!await page.locator('#flotante-soluto').isVisible())await page.locator('#menu-soluto').click();await page.locator('#soluto-bote-comercial').click();await page.setViewportSize({width:390,height:844});await page.screenshot({path:'D:/VIRTUAL_LAB/output/cabinet-mobile.png'});assert.ok(await page.locator('.cabinet-close').isVisible());assert.deepEqual(errors,[]);console.log('OK: fichas, seguridad, dosificación, conservación, rechazo compatible, Escape y PDF comercial real.');
+}finally{await browser?.close();server.kill();}
