@@ -37,6 +37,8 @@ jobs:
         run: npm run test:colors
       - name: Comprobar seguimiento del cartel al girar la cámara
         run: npm run test:instrument-panel
+      - name: Comprobar comparación de disoluciones guardadas
+        run: npm run test:comparison
       - name: Comprobar web estática y PDF sin servicios externos
         run: npm run test:pages
       - name: Preparar archivo para Pages

@@ -1,3 +1,4 @@
+import {abrirComparacionDisoluciones} from '../ui/solution-comparison.js';
 import {descargaPipeta,detenerDescargaPipeta} from '../instruments/pipette.js';
 import {invalidarValoracion} from '../app/titration.js';
 import {llaveBureta, cerrarLlaveBureta} from '../instruments/burette.js';
@@ -67,24 +68,43 @@ export function eliminarDisolucion(index) {
   guardarReservaPersistente();refrescarTrasDosificar();
 }
 
+const seleccionComparacion=new Set();
+const listasReserva=new Map();
+function actualizarSeleccionComparacion(){
+ for(const f of seleccionComparacion)if(!labState.reservas.includes(f))seleccionComparacion.delete(f);
+ const n=seleccionComparacion.size,button=document.getElementById('reserva-comparar'),clear=document.getElementById('reserva-comparar-limpiar'),status=document.getElementById('reserva-comparar-estado');
+ if(button){button.disabled=n<2;const label='Comparar seleccionadas ('+n+')';if(button.textContent!==label)button.textContent=label;}
+ if(clear)clear.disabled=n===0;if(status){const label=n+(n===1?' seleccionada. ':' seleccionadas. ')+(n<2?'Selecciona al menos dos para comparar.':'Puedes compararlas sin modificar la mesa.');if(status.textContent!==label)status.textContent=label;}
+}
+export function compararReservasSeleccionadas(){
+ actualizarSeleccionComparacion();
+ try{abrirComparacionDisoluciones(labState.reservas.filter(f=>seleccionComparacion.has(f)));}
+ catch(e){document.getElementById('reserva-mensaje').textContent=e.message;}
+}
+export function limpiarSeleccionComparacion(){seleccionComparacion.clear();listasReserva.delete('reserva-lista');renderizarReserva();}
 export function renderizarReserva() {
-  const shelf=document.getElementById('estante-reserva');if(!shelf)return;
-  shelf.hidden=labState.reservas.length===0;
-  for(const id of ['estante-lista','reserva-lista']) {
-    const list=document.getElementById(id);list.replaceChildren();
-    labState.reservas.forEach((ficha,i)=>{
-      const rec=ficha.rec,sol=SOLUTOS.find(s=>s.id===rec.soluteId);
-      const button=document.createElement('button');button.className='reserva-card';button.type='button';button.dataset.reservaIndex=String(i);
-      button.title='Recuperar en el recipiente activo; su contenido actual se guarda en la reserva';
-      const icon=document.createElement('span');icon.setAttribute('aria-hidden','true');icon.textContent=rec.tipo==='matraz' ? '⚗' : '▱';icon.style.cssText='font-size:32px;color:rgb('+sol.rgb.join(',')+')';
-      const text=document.createElement('span');text.textContent=ficha.nombre+' · '+rec.volMl.toFixed(2)+' mL · '+(rec.volMl>0 ? rec.molesN/rec.volMl*1000 : 0).toFixed(4)+' mol/L';
-      button.append(icon,text);button.addEventListener('click',()=>recuperarDisolucion(i));list.appendChild(button);
-      if(id==='reserva-lista'){
-        const eliminar=document.createElement('button');eliminar.type='button';eliminar.className='btn btn-gray';
-        eliminar.textContent='Eliminar';eliminar.setAttribute('aria-label','Eliminar '+ficha.nombre);
-        eliminar.addEventListener('click',()=>eliminarDisolucion(i));list.appendChild(eliminar);
-      }
-    });
-    if(!labState.reservas.length)list.textContent='Todavía no hay disoluciones guardadas.';
-  }
+ const shelf=document.getElementById('estante-reserva');if(!shelf)return;
+ shelf.hidden=labState.reservas.length===0;actualizarSeleccionComparacion();
+ const stamp=JSON.stringify(labState.reservas.map(f=>[f.nombre,f.rec.volMl,f.rec.molesN,f.rec.tipo]));
+ for(const id of ['estante-lista','reserva-lista']){
+  const list=document.getElementById(id),cache=listasReserva.get(id);
+  // Keep keyboard focus and checkbox selection while the active vessel is being dosed.
+  if(cache?.stamp===stamp&&cache.entries.length===labState.reservas.length&&cache.entries.every((f,i)=>f===labState.reservas[i]))continue;
+  list.replaceChildren();
+  labState.reservas.forEach((ficha,i)=>{
+   const rec=ficha.rec,sol=SOLUTOS.find(s=>s.id===rec.soluteId),entry=id==='reserva-lista'?document.createElement('div'):list;
+   if(entry!==list){entry.className='reserve-comparison-entry';entry.dataset.selected=String(seleccionComparacion.has(ficha));list.append(entry);
+    const label=document.createElement('label');label.className='reserve-compare-choice';const check=document.createElement('input');check.type='checkbox';check.dataset.compareIndex=String(i);check.checked=seleccionComparacion.has(ficha);check.setAttribute('aria-label','Incluir en comparación: '+ficha.nombre);
+    const caption=document.createElement('span');caption.textContent='Incluir en comparación';label.append(check,caption);entry.append(label);
+    check.addEventListener('change',()=>{if(check.checked)seleccionComparacion.add(ficha);else seleccionComparacion.delete(ficha);entry.dataset.selected=String(check.checked);actualizarSeleccionComparacion();});
+   }
+   const button=document.createElement('button');button.className='reserva-card';button.type='button';button.dataset.reservaIndex=String(i);button.title='Recuperar en el recipiente activo; su contenido actual se guarda en la reserva';
+   const icon=document.createElement('span');icon.setAttribute('aria-hidden','true');icon.textContent=rec.tipo==='matraz'?'⚗':'▱';icon.style.cssText='font-size:32px;color:rgb('+sol.rgb.join(',')+')';
+   const text=document.createElement('span');text.textContent=ficha.nombre+' · '+rec.volMl.toFixed(2)+' mL · '+(Object.keys(rec.componentes??{}).length>1?'mezcla de reactivos':(rec.volMl>0?rec.molesN/rec.volMl*1000:0).toFixed(4)+' mol/L');
+   button.append(icon,text);button.addEventListener('click',()=>recuperarDisolucion(i));entry.append(button);
+   if(entry!==list){const eliminar=document.createElement('button');eliminar.type='button';eliminar.className='btn btn-gray';eliminar.textContent='Eliminar';eliminar.setAttribute('aria-label','Eliminar '+ficha.nombre);eliminar.addEventListener('click',()=>eliminarDisolucion(i));entry.append(eliminar);}
+  });
+  if(!labState.reservas.length)list.textContent='Todavía no hay disoluciones guardadas.';
+  listasReserva.set(id,{stamp,entries:[...labState.reservas]});
+ }
 }

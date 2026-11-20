@@ -22,7 +22,8 @@
     "test:cabinet": "node tests/cabinet.browser.mjs",
     "test:pages": "node tests/pages.browser.mjs",
     "test:colors": "node tests/colors.browser.mjs",
-    "test:instrument-panel": "node tests/instrument-panel.browser.mjs"
+    "test:instrument-panel": "node tests/instrument-panel.browser.mjs",
+    "test:comparison": "node tests/comparison.browser.mjs"
   },
   "dependencies": {
     "three": "0.128.0"

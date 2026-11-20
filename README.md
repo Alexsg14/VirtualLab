@@ -76,6 +76,12 @@ En esta valoración, **25 mL de ácido acético 0,1 M** reciben **NaOH 0,1 M**. 
 
 El módulo admite **HCl, NaOH, CH₃COOH, NH₃, H₂SO₄, ácido malónico y NaCl**. Incluye indicadores, lectura de pH y pOH, pausa y reanudación de la dosificación y exportación de la curva a CSV. Los ácidos dipróticos incorporan dos etapas de disociación; sus equivalencias no siempre generan dos saltos de pH separados.
 
+## Comparar disoluciones guardadas
+
+En **Disoluciones guardadas**, marca **Incluir en comparación** en dos o más preparaciones y pulsa **Comparar seleccionadas**. La tabla presenta sus cantidades, agua presente, volumen final, concentraciones, temperatura, densidad y avisos sin recuperar las disoluciones ni alterar la mesa. Incluye exportación a CSV y conserva las limitaciones del modelo químico.
+
+[Funcionamiento, datos y exportación](docs/comparacion-disoluciones.md).
+
 ## Armario de reactivos
 
 Consulta botes de referencia de **HCl acuoso al 36 % m/m, H₂SO₄ concentrado al 98 % nominal, NaOH en lentejas y NaCl sólido**. Sus fichas incluyen propiedades, especificaciones, representaciones de etiquetas de seguridad e indicaciones H/P seleccionadas con enlaces a la documentación del fabricante.
