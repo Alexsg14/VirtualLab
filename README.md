@@ -8,11 +8,13 @@ Laboratorio interactivo para estudiar disoluciones y valoraciones ácido-base me
 
 **Three.js · TypeScript · JavaScript · Vite**
 
-[Instalación](#instalación) · [Disoluciones](#disoluciones) · [Valoraciones](#valoraciones-ácido-base) · [Modelo científico](#modelo-científico) · [Desarrollo](#desarrollo)
+**[Abrir laboratorio](https://alexsg14.github.io/VirtualLab/)** · [Comparar preparaciones](#comparar-disoluciones-guardadas) · [Reactivos](#armario-de-reactivos) · [Instalación](#instalación) · [Disoluciones](#disoluciones) · [Valoraciones](#valoraciones-ácido-base) · [Modelo científico](#modelo-científico) · [Desarrollo](#desarrollo)
 
 </div>
 
 ![Escena 3D con un Erlenmeyer y un matraz aforado que contienen disoluciones coloreadas](docs/images/laboratorio-3d.jpg)
+
+La versión web se utiliza directamente en el navegador. Para trabajar con una copia local, consulta la [instalación](#instalación).
 
 ## Un laboratorio para experimentar
 
@@ -71,14 +73,29 @@ En esta valoración, **25 mL de ácido acético 0,1 M** reciben **NaOH 0,1 M**. 
 | :--- | :--- |
 | Curva continua | Evolución del pH calculado durante las adiciones. |
 | Línea discontinua | Referencia calculada con la composición inicial. |
-| Banda de color | Intervalo de viraje del indicador. |
+| Banda rayada | Intervalo de viraje del indicador, distinguible sin depender del color. |
+| Línea de puntos | pH neutro a la temperatura de la muestra. |
 | Marcas verticales | Volúmenes de equivalencia estequiométrica previstos. |
 
 El módulo admite **HCl, NaOH, CH₃COOH, NH₃, H₂SO₄, ácido malónico y NaCl**. Incluye indicadores, lectura de pH y pOH, pausa y reanudación de la dosificación y exportación de la curva a CSV. Los ácidos dipróticos incorporan dos etapas de disociación; sus equivalencias no siempre generan dos saltos de pH separados.
 
+La gráfica comienza oculta con un efecto spoiler. Pulsa **Spoiler! Visualizar al terminar** y confirma para consultar los resultados; puedes volver a ocultarla. El **CSV de valoración** contiene el registro de adiciones, volumen acumulado y pH, además de los datos auxiliares, para reconstruir la curva en Excel. La reducción de puntos al dibujar la gráfica no elimina medidas del CSV.
+
 ## Comparar disoluciones guardadas
 
-En **Disoluciones guardadas**, marca **Incluir en comparación** en dos o más preparaciones y pulsa **Comparar seleccionadas**. La tabla presenta sus cantidades, agua presente, volumen final, concentraciones, temperatura, densidad y avisos sin recuperar las disoluciones ni alterar la mesa. Incluye exportación a CSV y conserva las limitaciones del modelo químico.
+Guarda tus ensayos y compara sus resultados sin recuperar las disoluciones ni modificar los recipientes de la mesa.
+
+1. Prepara una disolución, abre **Disoluciones guardadas**, escribe una etiqueta y pulsa **Guardar el recipiente activo**. Repite con las otras preparaciones.
+2. Marca **Incluir en comparación** en dos o más disoluciones.
+3. Pulsa **Comparar seleccionadas** para abrir la tabla y, si lo necesitas, **Exportar comparación CSV** para trabajar en Excel.
+
+![Panel Disoluciones guardadas con dos preparaciones seleccionadas y el botón Comparar seleccionadas](docs/images/comparacion-seleccion.jpg)
+
+**La misma masa de soluto, dos procedimientos distintos.** Con 5,844 g de NaCl a 25 °C, la comparación permite comprobar cómo cambia la concentración cuando se confunde el volumen de agua con el volumen final.
+
+![Tabla de comparación de dos preparaciones de NaCl: enrasada a 200 mL frente a añadir el soluto a 200 mL de agua](docs/images/comparacion-disoluciones.jpg)
+
+La tabla reúne masa y moles de soluto, agua presente, volumen final, mol/L, g/L, % m/m, ppm, molalidad, temperatura, densidad, pH ideal y avisos del modelo. **Agua presente** representa el inventario actual, no la suma histórica de las adiciones; su volumen equivalente corresponde a agua pura a 25 °C. Las mezclas conservan sus limitaciones y no reciben una molaridad única si no procede.
 
 [Funcionamiento, datos y exportación](docs/comparacion-disoluciones.md).
 
@@ -87,6 +104,8 @@ En **Disoluciones guardadas**, marca **Incluir en comparación** en dos o más p
 Consulta botes de referencia de **HCl acuoso al 36 % m/m, H₂SO₄ concentrado al 98 % nominal, NaOH en lentejas y NaCl sólido**. Sus fichas incluyen propiedades, especificaciones, representaciones de etiquetas de seguridad e indicaciones H/P seleccionadas con enlaces a la documentación del fabricante.
 
 Desde **Soluto → Desde un bote comercial** (o **Reactivos ácido-base → Desde un bote comercial**), puedes calcular una preparación y añadir producto al recipiente activo. El HCl aporta tanto soluto como agua; el volumen final se recalcula. Los sólidos se representan explícitamente como muestras idealizadas: la pureza mínima declarada no se interpreta como ensayo exacto. Las adiciones y sus factores de conversión quedan en el diario PDF y LaTeX.
+
+![Armario de reactivos con el bote de ácido sulfúrico seleccionado, propiedades, pictograma y control de adición](docs/images/armario-reactivos.jpg)
 
 [Datos, fuentes y alcance del armario](docs/armario-reactivos.md).
 
@@ -201,6 +220,10 @@ npm run test:acidbase
 npm run test:titration
 npm run test:instruments
 npm run test:diary
+npm run test:cabinet
+npm run test:colors
+npm run test:instrument-panel
+npm run test:comparison
 ```
 
 La prueba del diario compila un PDF real sin conexiones externas cuando los recursos de LaTeX están preparados; si faltan, verifica el aviso y declara pendiente esa comprobación.
@@ -209,4 +232,4 @@ También se puede utilizar Edge instalado. En PowerShell, establece `$env:PLAYWR
 
 ### Persistencia
 
-Las disoluciones guardadas se almacenan en el navegador, asociadas al perfil y a la dirección de la aplicación. No se sincronizan entre dispositivos ni mediante GitHub. Desarrollo (`localhost:5173`) y vista previa (`localhost:4173`) utilizan almacenamientos separados.
+Las disoluciones guardadas se almacenan en el navegador, asociadas al perfil y a la dirección de la aplicación. No se sincronizan entre dispositivos ni mediante GitHub. La versión de GitHub Pages, desarrollo (`localhost:5173`) y vista previa (`localhost:4173`) utilizan almacenamientos separados.
